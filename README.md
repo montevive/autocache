@@ -1,7 +1,7 @@
 <div align="center">
   <img src="media/logo-autocache.png" alt="AutoCache Logo" width="400"/>
 
-  # Autocache
+# Autocache
 
   **Intelligent Anthropic API Cache Proxy with ROI Analytics**
 
@@ -49,14 +49,14 @@ Several tools offer prompt caching support, but Autocache is unique in combining
 
 ### Existing Solutions
 
-| Solution | Type | Auto-Injection | Intelligence | ROI Analytics | Drop-in for n8n/Flowise |
-|----------|------|----------------|--------------|---------------|-------------------------|
-| **Autocache** | Proxy | ✅ Fully automatic | ✅ Token analysis + ROI scoring | ✅ Response headers | ✅ Yes |
-| [LiteLLM](https://docs.litellm.ai/docs/tutorials/prompt_caching) | Proxy | ⚠️ Requires config | ❌ Rule-based | ❌ No | ✅ Yes |
-| [langchain-smart-cache](https://github.com/imranarshad/langchain-anthropic-smart-cache) | Library | ✅ Fully automatic | ✅ Priority-based | ✅ Statistics | ❌ LangChain only |
-| [anthropic-cost-tracker](https://github.com/Supgrade/anthropic-API-cost-tracker) | Library | ❓ Unclear | ❓ Unknown | ✅ Dashboard | ❌ Python only |
-| OpenRouter | Service | ⚠️ Provider-dependent | ❌ No | ❌ No | ✅ Yes |
-| AWS Bedrock | Cloud | ✅ ML-based | ✅ Yes | ✅ AWS only | ❌ AWS only |
+| Solution                                                                             | Type    | Auto-Injection          | Intelligence                    | ROI Analytics       | Drop-in for n8n/Flowise |
+| ------------------------------------------------------------------------------------ | ------- | ----------------------- | ------------------------------- | ------------------- | ----------------------- |
+| **Autocache**                                                                  | Proxy   | ✅ Fully automatic      | ✅ Token analysis + ROI scoring | ✅ Response headers | ✅ Yes                  |
+| [LiteLLM](https://docs.litellm.ai/docs/tutorials/prompt_caching)                        | Proxy   | ⚠️ Requires config    | ❌ Rule-based                   | ❌ No               | ✅ Yes                  |
+| [langchain-smart-cache](https://github.com/imranarshad/langchain-anthropic-smart-cache) | Library | ✅ Fully automatic      | ✅ Priority-based               | ✅ Statistics       | ❌ LangChain only       |
+| [anthropic-cost-tracker](https://github.com/Supgrade/anthropic-API-cost-tracker)        | Library | ❓ Unclear              | ❓ Unknown                      | ✅ Dashboard        | ❌ Python only          |
+| OpenRouter                                                                           | Service | ⚠️ Provider-dependent | ❌ No                           | ❌ No               | ✅ Yes                  |
+| AWS Bedrock                                                                          | Cloud   | ✅ ML-based             | ✅ Yes                          | ✅ AWS only         | ❌ AWS only             |
 
 ### What Makes Autocache Different
 
@@ -85,6 +85,7 @@ Several tools offer prompt caching support, but Autocache is unique in combining
 ### Using Docker Compose (Recommended)
 
 1. **Clone and configure**:
+
 ```bash
 git clone <repository-url>
 cd autocache
@@ -93,11 +94,13 @@ cp .env.example .env
 ```
 
 2. **Start the proxy**:
+
 ```bash
 docker-compose up -d
 ```
 
 3. **Use in your application**:
+
 ```bash
 # Change your API base URL from:
 # https://api.anthropic.com
@@ -108,6 +111,7 @@ docker-compose up -d
 ### Direct Usage
 
 1. **Build and run**:
+
 ```bash
 go mod download
 go build -o autocache ./cmd/autocache
@@ -118,6 +122,7 @@ ANTHROPIC_API_KEY=sk-ant-... ./autocache
 ```
 
 2. **Configure your client**:
+
 ```python
 # Python example - API key passed in headers
 import anthropic
@@ -132,32 +137,33 @@ client = anthropic.Anthropic(
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `8080` | Server port |
-| `ANTHROPIC_API_KEY` | - | Your Anthropic API key (optional if passed in request headers) |
-| `CACHE_STRATEGY` | `moderate` | Caching strategy: `conservative`/`moderate`/`aggressive` |
-| `LOG_LEVEL` | `info` | Log level: `debug`/`info`/`warn`/`error` |
-| `MAX_CACHE_BREAKPOINTS` | `4` | Maximum cache breakpoints (1-4) |
-| `TOKEN_MULTIPLIER` | `1.0` | Token threshold multiplier |
+| Variable                  | Default      | Description                                                    |
+| ------------------------- | ------------ | -------------------------------------------------------------- |
+| `PORT`                  | `8080`     | Server port                                                    |
+| `ANTHROPIC_API_KEY`     | -            | Your Anthropic API key (optional if passed in request headers) |
+| `CACHE_STRATEGY`        | `moderate` | Caching strategy:`conservative`/`moderate`/`aggressive`  |
+| `LOG_LEVEL`             | `info`     | Log level:`debug`/`info`/`warn`/`error`                |
+| `MAX_CACHE_BREAKPOINTS` | `4`        | Maximum cache breakpoints (1-4)                                |
+| `TOKEN_MULTIPLIER`      | `1.0`      | Token threshold multiplier                                     |
 
 ### API Key Configuration
 
 The Anthropic API key can be provided in three ways (in order of precedence):
 
 1. **Request headers** (recommended for multi-tenant scenarios):
+
    ```http
    Authorization: Bearer sk-ant-...
    # or
    x-api-key: sk-ant-...
    ```
-
 2. **Environment variable**:
+
    ```bash
    ANTHROPIC_API_KEY=sk-ant-... ./autocache
    ```
-
 3. **`.env` file**:
+
    ```bash
    ANTHROPIC_API_KEY=sk-ant-...
    ```
@@ -167,16 +173,19 @@ The Anthropic API key can be provided in three ways (in order of precedence):
 ### Cache Strategies
 
 #### 🛡️ Conservative
+
 - **Focus**: System prompts and tools only
 - **Breakpoints**: Maximum 2
 - **Best For**: Cost-sensitive applications with predictable content
 
 #### ⚖️ Moderate (Default)
+
 - **Focus**: System, tools, and large content blocks
 - **Breakpoints**: Maximum 3
 - **Best For**: Most applications balancing savings and efficiency
 
 #### 🚀 Aggressive
+
 - **Focus**: Maximum caching coverage
 - **Breakpoints**: All 4 available
 - **Best For**: High-volume applications with repeated content
@@ -187,13 +196,13 @@ Autocache provides detailed ROI metrics via response headers:
 
 ### Key Headers
 
-| Header | Description |
-|--------|-------------|
-| `X-Autocache-Injected` | Whether caching was applied (`true`/`false`) |
-| `X-Autocache-Cache-Ratio` | Percentage of tokens cached (0.0-1.0) |
-| `X-Autocache-ROI-Percent` | Percentage savings at scale |
-| `X-Autocache-ROI-BreakEven` | Requests needed to break even |
-| `X-Autocache-Savings-100req` | Total savings after 100 requests |
+| Header                         | Description                                      |
+| ------------------------------ | ------------------------------------------------ |
+| `X-Autocache-Injected`       | Whether caching was applied (`true`/`false`) |
+| `X-Autocache-Cache-Ratio`    | Percentage of tokens cached (0.0-1.0)            |
+| `X-Autocache-ROI-Percent`    | Percentage savings at scale                      |
+| `X-Autocache-ROI-BreakEven`  | Requests needed to break even                    |
+| `X-Autocache-Savings-100req` | Total savings after 100 requests                 |
 
 ### Example Response Headers
 
@@ -213,30 +222,39 @@ X-Autocache-Savings-100req: $1.75
 ## API Endpoints
 
 ### Main Endpoint
+
 ```
 POST /v1/messages
 ```
+
 Drop-in replacement for Anthropic's `/v1/messages` endpoint with automatic cache injection.
 
 ### Health Check
+
 ```
 GET /health
 ```
+
 Returns server health and configuration status.
 
 ### Metrics
+
 ```
 GET /metrics
 ```
+
 Returns supported models, strategies, and cache limits.
 
 ### Savings Analytics
+
 ```
 GET /savings
 ```
+
 Returns comprehensive ROI analytics and caching statistics:
 
 **Response includes:**
+
 - **Recent Requests**: Full history of recent requests with cache metadata
 - **Aggregated Stats**:
   - Total requests processed
@@ -250,11 +268,13 @@ Returns comprehensive ROI analytics and caching statistics:
 - **Configuration**: Current cache strategy and history size
 
 **Example usage:**
+
 ```bash
 curl http://localhost:8080/savings | jq '.aggregated_stats'
 ```
 
 **Example response:**
+
 ```json
 {
   "aggregated_stats": {
@@ -282,6 +302,7 @@ curl http://localhost:8080/savings | jq '.aggregated_stats'
 ```
 
 **Use cases:**
+
 - 📊 Monitor cache effectiveness over time
 - 🔍 Debug cache injection decisions
 - 💰 Track actual cost savings
@@ -290,7 +311,9 @@ curl http://localhost:8080/savings | jq '.aggregated_stats'
 ## Advanced Usage
 
 ### Bypass Caching
+
 Add these headers to skip cache injection:
+
 ```http
 X-Autocache-Bypass: true
 # or
@@ -298,6 +321,7 @@ X-Autocache-Disable: true
 ```
 
 ### Custom Configuration
+
 ```bash
 # Aggressive caching with debug logging
 CACHE_STRATEGY=aggressive LOG_LEVEL=debug ./autocache
@@ -307,6 +331,7 @@ CACHE_STRATEGY=conservative TOKEN_MULTIPLIER=1.5 ./autocache
 ```
 
 ### Production Deployment
+
 ```yaml
 # docker-compose.prod.yml
 version: '3.8'
@@ -337,6 +362,7 @@ services:
 ## Cache Control Details
 
 ### Supported Content Types
+
 - ✅ System messages
 - ✅ Tool definitions
 - ✅ Text content blocks
@@ -344,17 +370,20 @@ services:
 - ❌ Images (not cacheable per Anthropic limits)
 
 ### Token Requirements
+
 - **Most models**: 1024 tokens minimum
 - **Haiku models**: 2048 tokens minimum
 - **Breakpoint limit**: 4 per request
 
 ### TTL Options
+
 - **5 minutes**: Dynamic content, frequent changes
 - **1 hour**: Stable content (system prompts, tools)
 
 ## Cost Savings Examples
 
 ### Example 1: Documentation Chat
+
 ```
 Request: 8,000 tokens (6,000 cached system prompt + 2,000 user question)
 Cost without caching: $0.024 per request
@@ -366,6 +395,7 @@ Cost with caching:
 ```
 
 ### Example 2: Code Review Assistant
+
 ```
 Request: 12,000 tokens (10,000 cached codebase + 2,000 review request)
 Cost without caching: $0.036 per request
@@ -379,6 +409,7 @@ Cost with caching:
 ## Monitoring and Debugging
 
 ### Logging
+
 ```bash
 # Debug mode for detailed cache decisions
 LOG_LEVEL=debug ./autocache
@@ -388,12 +419,14 @@ LOG_JSON=true LOG_LEVEL=info ./autocache
 ```
 
 ### Key Log Fields
+
 - `cache_injected`: Whether caching was applied
 - `cache_ratio`: Percentage of tokens cached
 - `breakpoints`: Number of cache breakpoints used
 - `roi_percent`: Percentage savings achieved
 
 ### Health Monitoring
+
 ```bash
 # Check proxy health
 curl http://localhost:8080/health
@@ -416,24 +449,30 @@ curl http://localhost:8080/savings | jq '.debug_info.breakpoints_by_type'
 ### Common Issues
 
 **❌ No caching applied**
+
 - Check token counts meet minimums (1024/2048)
 - Verify content is cacheable (not images)
 - Review cache strategy configuration
 
 **❌ High break-even point**
+
 - Content may be too small for effective caching
 - Consider more conservative strategy
 - Check token multiplier setting
 
 **❌ API key errors**
+
 - Ensure `ANTHROPIC_API_KEY` is set or passed in headers
 - Verify API key format: `sk-ant-...`
 
 ### Debug Mode
+
 ```bash
 LOG_LEVEL=debug ./autocache
 ```
+
 Provides detailed information about:
+
 - Token counting decisions
 - Cache breakpoint placement
 - ROI calculations
@@ -482,9 +521,9 @@ MIT License - see LICENSE file for details.
 
 ## Support
 
-- 📧 Email: support@autocache.example
-- 💬 Issues: [GitHub Issues](https://github.com/yourusername/autocache/issues)
-- 📖 Documentation: [GitHub Wiki](https://github.com/yourusername/autocache/wiki)
+- 📧 Email: hi@montevive.ai
+- 💬 Issues: [GitHub Issues](https://github.com/montevive/autocache/issues)
+- 📖 Documentation: [GitHub Wiki](https://github.com/montevive/autocache/wiki)
 
 ---
 
