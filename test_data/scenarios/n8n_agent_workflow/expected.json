@@ -1,0 +1,1214 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 2048,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "I need to create a workflow that monitors customer support tickets, processes them, and sends notifications. Can you help me set this up?"
+        }
+      ]
+    }
+  ],
+  "system": "You are an intelligent n8n workflow automation assistant with deep expertise in integrating and orchestrating multiple services, APIs, databases, and business applications. Your role is to help users build sophisticated automation workflows that connect different tools and services to streamline business processes, eliminate manual tasks, and enable powerful integrations across their technology stack.",
+  "tools": [
+    {
+      "name": "slack_send_message",
+      "description": "Send messages to Slack channels or direct messages. Supports rich formatting with markdown, mentions, attachments, blocks, threads, reactions, and file uploads. Can send to multiple channels, schedule messages for later delivery, and includes retry logic for failed deliveries. Supports Slack's Block Kit for interactive messages with buttons, select menus, and other UI elements.",
+      "input_schema": {
+        "properties": {
+          "attachments": {
+            "description": "Legacy attachments for backwards compatibility",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "blocks": {
+            "description": "Slack Block Kit structured content for rich interactive messages",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "channel": {
+            "description": "Channel ID or name (e.g., #general, @username, or channel ID like C1234567890)",
+            "type": "string"
+          },
+          "icon_emoji": {
+            "description": "Emoji icon for the message (e.g., :ghost:)",
+            "type": "string"
+          },
+          "icon_url": {
+            "description": "URL to an image to use as the icon",
+            "type": "string"
+          },
+          "link_names": {
+            "description": "Find and link channel names and usernames",
+            "type": "boolean"
+          },
+          "text": {
+            "description": "Message text content, supports Slack markdown formatting",
+            "type": "string"
+          },
+          "thread_ts": {
+            "description": "Thread timestamp to reply in a thread",
+            "type": "string"
+          },
+          "username": {
+            "description": "Custom username for the message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel",
+          "text"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "email_send",
+      "description": "Send emails via SMTP with support for HTML content, attachments, CC, BCC, reply-to addresses, custom headers, delivery receipts, importance flags, and email templates. Handles authentication, TLS encryption, connection pooling, retry logic for temporary failures, bounce handling, unsubscribe management, and tracking of opens and clicks. Supports both transactional and bulk email sending with rate limiting and queue management.",
+      "input_schema": {
+        "properties": {
+          "attachments": {
+            "description": "Email attachments",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "bcc": {
+            "description": "BCC recipients",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "body": {
+            "description": "Email body content (plain text or HTML)",
+            "type": "string"
+          },
+          "cc": {
+            "description": "CC recipients",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "from": {
+            "description": "Sender email address",
+            "type": "string"
+          },
+          "headers": {
+            "description": "Custom email headers",
+            "type": "object"
+          },
+          "html": {
+            "description": "Whether body contains HTML",
+            "type": "boolean"
+          },
+          "importance": {
+            "description": "Email importance/priority",
+            "enum": [
+              "low",
+              "normal",
+              "high"
+            ],
+            "type": "string"
+          },
+          "reply_to": {
+            "description": "Reply-to email address",
+            "type": "string"
+          },
+          "subject": {
+            "description": "Email subject line",
+            "type": "string"
+          },
+          "to": {
+            "description": "Recipient email addresses",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "body",
+          "from"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "sms_send",
+      "description": "Send SMS text messages via Twilio with support for long messages (automatic segmentation), delivery status tracking, scheduled sending, message templates, personalization variables, opt-out management, compliance with telecommunications regulations, international phone number support with country code validation, unicode characters and emoji support, and integration with delivery webhooks for real-time status updates.",
+      "input_schema": {
+        "properties": {
+          "body": {
+            "description": "SMS message body (max 1600 characters, will be segmented automatically)",
+            "type": "string"
+          },
+          "from": {
+            "description": "Sender phone number or alphanumeric sender ID",
+            "type": "string"
+          },
+          "media_url": {
+            "description": "URLs of media files to send (MMS)",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "schedule_time": {
+            "description": "ISO 8601 timestamp for scheduled sending",
+            "type": "string"
+          },
+          "status_callback": {
+            "description": "Webhook URL for delivery status notifications",
+            "type": "string"
+          },
+          "to": {
+            "description": "Recipient phone number in E.164 format (e.g., +1234567890)",
+            "type": "string"
+          },
+          "validity_period": {
+            "description": "How long the message is valid in seconds (default 259200 = 72 hours)",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "to",
+          "from",
+          "body"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "postgres_query",
+      "description": "Execute SQL queries on PostgreSQL databases with support for SELECT, INSERT, UPDATE, DELETE, and complex queries with joins, subqueries, window functions, CTEs, and transactions. Includes connection pooling, query timeout management, prepared statements for SQL injection prevention, result pagination, streaming large result sets, automatic type conversion, parameterized queries, transaction management with commit and rollback, database schema introspection, and query performance analysis.",
+      "input_schema": {
+        "properties": {
+          "connection_string": {
+            "description": "PostgreSQL connection string or use default from config",
+            "type": "string"
+          },
+          "max_rows": {
+            "description": "Maximum number of rows to return (for pagination)",
+            "type": "integer"
+          },
+          "parameters": {
+            "description": "Query parameters for parameterized queries",
+            "items": {},
+            "type": "array"
+          },
+          "query": {
+            "description": "SQL query to execute",
+            "type": "string"
+          },
+          "return_metadata": {
+            "description": "Include column metadata in response",
+            "type": "boolean"
+          },
+          "timeout": {
+            "description": "Query timeout in milliseconds (default 30000)",
+            "type": "integer"
+          },
+          "transaction": {
+            "description": "Whether to execute in a transaction",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mongodb_operation",
+      "description": "Perform MongoDB database operations including find, insert, update, delete, aggregate, with support for complex queries, aggregation pipelines with multiple stages, bulk operations, transactions, change streams for real-time data monitoring, geospatial queries, text search with language-specific stemming, schema validation, TTL indexes, partial indexes, connection pooling, read preferences, write concerns, and database administration operations.",
+      "input_schema": {
+        "properties": {
+          "collection": {
+            "description": "Collection name",
+            "type": "string"
+          },
+          "connection_uri": {
+            "description": "MongoDB connection URI or use default",
+            "type": "string"
+          },
+          "document": {
+            "description": "Document to insert or update",
+            "type": "object"
+          },
+          "filter": {
+            "description": "Query filter document",
+            "type": "object"
+          },
+          "operation": {
+            "description": "MongoDB operation type",
+            "enum": [
+              "find",
+              "findOne",
+              "insertOne",
+              "insertMany",
+              "updateOne",
+              "updateMany",
+              "deleteOne",
+              "deleteMany",
+              "aggregate",
+              "countDocuments"
+            ],
+            "type": "string"
+          },
+          "options": {
+            "description": "Additional operation options (sort, limit, skip, projection, etc.)",
+            "type": "object"
+          },
+          "pipeline": {
+            "description": "Aggregation pipeline stages",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "update": {
+            "description": "Update operations",
+            "type": "object"
+          }
+        },
+        "required": [
+          "operation",
+          "collection"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mysql_execute",
+      "description": "Execute SQL statements on MySQL databases with support for all standard SQL operations, stored procedures, prepared statements, transactions with savepoints, connection pooling with configurable pool sizes, query result caching, replication-aware connections (master/slave), automatic failover, query retry logic, SSL/TLS connections, character set handling, timezone conversions, large BLOB handling, and comprehensive error reporting with detailed diagnostic information.",
+      "input_schema": {
+        "properties": {
+          "database": {
+            "description": "Database name",
+            "type": "string"
+          },
+          "host": {
+            "description": "MySQL host or use default",
+            "type": "string"
+          },
+          "params": {
+            "description": "Parameters for prepared statement",
+            "type": "array"
+          },
+          "port": {
+            "description": "MySQL port (default 3306)",
+            "type": "integer"
+          },
+          "sql": {
+            "description": "SQL statement to execute",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Query timeout in milliseconds",
+            "type": "integer"
+          },
+          "transaction_mode": {
+            "description": "Transaction control",
+            "enum": [
+              "none",
+              "begin",
+              "commit",
+              "rollback"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "sql"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "google_drive_upload",
+      "description": "Upload files to Google Drive with support for file metadata, folder organization, sharing permissions (public, private, domain, specific users), revision history, collaborative editing permissions, file conversion (docs, sheets, slides), OCR for images, thumbnail generation, virus scanning, file encryption, resumable uploads for large files, batch uploads, duplicate detection, and integration with Google Workspace apps including Docs, Sheets, Slides, and Forms.",
+      "input_schema": {
+        "properties": {
+          "convert": {
+            "description": "Convert to Google Docs format if applicable",
+            "type": "boolean"
+          },
+          "description": {
+            "description": "File description",
+            "type": "string"
+          },
+          "file_data": {
+            "description": "File content (base64 encoded for binary files)",
+            "type": "string"
+          },
+          "file_name": {
+            "description": "Name for the file in Google Drive",
+            "type": "string"
+          },
+          "folder_id": {
+            "description": "Google Drive folder ID (parent folder)",
+            "type": "string"
+          },
+          "mime_type": {
+            "description": "MIME type of the file",
+            "type": "string"
+          },
+          "sharing": {
+            "properties": {
+              "email": {
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "reader",
+                  "writer",
+                  "commenter",
+                  "owner"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "user",
+                  "group",
+                  "domain",
+                  "anyone"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "starred": {
+            "description": "Whether to star the file",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "file_name",
+          "file_data",
+          "mime_type"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "aws_s3_operation",
+      "description": "Perform AWS S3 operations including upload, download, delete, list, copy, move with support for multipart uploads for large files, presigned URLs for temporary access, versioning, lifecycle policies, server-side encryption (SSE-S3, SSE-KMS, SSE-C), access control lists (ACLs), bucket policies, cross-region replication, storage classes (Standard, IA, Glacier), object tagging, metadata management, batch operations, inventory reports, and CloudWatch metrics integration.",
+      "input_schema": {
+        "properties": {
+          "acl": {
+            "description": "Access control list",
+            "enum": [
+              "private",
+              "public-read",
+              "public-read-write",
+              "authenticated-read"
+            ],
+            "type": "string"
+          },
+          "bucket": {
+            "description": "S3 bucket name",
+            "type": "string"
+          },
+          "content": {
+            "description": "Content to upload (for upload operation)",
+            "type": "string"
+          },
+          "content_type": {
+            "description": "MIME type of the content",
+            "type": "string"
+          },
+          "key": {
+            "description": "Object key (file path in bucket)",
+            "type": "string"
+          },
+          "metadata": {
+            "description": "Custom metadata key-value pairs",
+            "type": "object"
+          },
+          "operation": {
+            "description": "S3 operation to perform",
+            "enum": [
+              "upload",
+              "download",
+              "delete",
+              "list",
+              "copy",
+              "move",
+              "getPresignedUrl"
+            ],
+            "type": "string"
+          },
+          "server_side_encryption": {
+            "description": "Server-side encryption method",
+            "enum": [
+              "AES256",
+              "aws:kms"
+            ],
+            "type": "string"
+          },
+          "source_key": {
+            "description": "Source key for copy/move operations",
+            "type": "string"
+          },
+          "storage_class": {
+            "description": "Storage class",
+            "enum": [
+              "STANDARD",
+              "REDUCED_REDUNDANCY",
+              "STANDARD_IA",
+              "ONEZONE_IA",
+              "INTELLIGENT_TIERING",
+              "GLACIER",
+              "DEEP_ARCHIVE"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation",
+          "bucket"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "http_request",
+      "description": "Make HTTP/HTTPS requests to any API or web service with support for all HTTP methods (GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS), custom headers, authentication (Basic, Bearer, OAuth1, OAuth2, API Key, Digest), query parameters, request body (JSON, XML, form-data, x-www-form-urlencoded, raw), file uploads, timeout configuration, retry logic with exponential backoff, proxy support, SSL certificate validation, response parsing (JSON, XML, HTML, text, binary), cookie handling, redirect following, compression, streaming responses, and detailed error reporting.",
+      "input_schema": {
+        "properties": {
+          "auth": {
+            "properties": {
+              "credentials": {
+                "type": "object"
+              },
+              "type": {
+                "enum": [
+                  "none",
+                  "basic",
+                  "bearer",
+                  "oauth1",
+                  "oauth2",
+                  "apiKey",
+                  "digest"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "body": {
+            "description": "Request body",
+            "type": "object"
+          },
+          "body_type": {
+            "description": "Request body type",
+            "enum": [
+              "json",
+              "form",
+              "multipart",
+              "raw",
+              "xml"
+            ],
+            "type": "string"
+          },
+          "follow_redirects": {
+            "description": "Whether to follow HTTP redirects",
+            "type": "boolean"
+          },
+          "headers": {
+            "description": "Custom HTTP headers",
+            "type": "object"
+          },
+          "method": {
+            "description": "HTTP method",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE",
+              "HEAD",
+              "OPTIONS"
+            ],
+            "type": "string"
+          },
+          "query_parameters": {
+            "description": "URL query parameters",
+            "type": "object"
+          },
+          "retry": {
+            "properties": {
+              "delay": {
+                "type": "integer"
+              },
+              "max_attempts": {
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "timeout": {
+            "description": "Request timeout in milliseconds",
+            "type": "integer"
+          },
+          "url": {
+            "description": "Request URL",
+            "type": "string"
+          },
+          "validate_ssl": {
+            "description": "Whether to validate SSL certificates",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "method",
+          "url"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "webhook_trigger",
+      "description": "Configure and manage webhook endpoints that can receive HTTP POST requests from external services, with support for authentication (HMAC signatures, API keys, OAuth), request validation, payload parsing (JSON, XML, form data), custom response configuration, conditional routing based on payload content, rate limiting, IP whitelisting, request logging, retry handling for failed processing, webhook health monitoring, automatic webhook registration with third-party services, and integration with workflow execution contexts.",
+      "input_schema": {
+        "properties": {
+          "authentication": {
+            "properties": {
+              "config": {
+                "type": "object"
+              },
+              "type": {
+                "enum": [
+                  "none",
+                  "hmac",
+                  "api_key",
+                  "oauth"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "ip_whitelist": {
+            "description": "Allowed IP addresses or CIDR ranges",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "path": {
+            "description": "Webhook endpoint path (e.g., /webhooks/github)",
+            "type": "string"
+          },
+          "rate_limit": {
+            "properties": {
+              "burst": {
+                "type": "integer"
+              },
+              "requests_per_minute": {
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "response_body": {
+            "description": "Custom response body",
+            "type": "object"
+          },
+          "response_code": {
+            "description": "HTTP status code to return (default 200)",
+            "type": "integer"
+          },
+          "response_mode": {
+            "description": "When to send HTTP response",
+            "enum": [
+              "immediately",
+              "when_workflow_completes",
+              "custom"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "json_parse",
+      "description": "Parse, validate, transform, and manipulate JSON data with support for JSONPath queries, JMESPath expressions, schema validation against JSON Schema specifications, data extraction from nested structures, array operations (map, filter, reduce, find, sort), object manipulation (merge, deep merge, pick, omit, flatten, unflatten), type conversions, null handling, circular reference detection, pretty printing, minification, and error handling for malformed JSON with detailed error messages including line and column numbers.",
+      "input_schema": {
+        "properties": {
+          "input": {
+            "description": "JSON string to parse or manipulate",
+            "type": "string"
+          },
+          "operation": {
+            "description": "Operation to perform",
+            "enum": [
+              "parse",
+              "stringify",
+              "query",
+              "validate",
+              "transform",
+              "extract",
+              "merge"
+            ],
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "allow_duplicate_keys": {
+                "type": "boolean"
+              },
+              "pretty": {
+                "type": "boolean"
+              },
+              "strict": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          },
+          "query": {
+            "description": "JSONPath or JMESPath query expression",
+            "type": "string"
+          },
+          "schema": {
+            "description": "JSON Schema for validation",
+            "type": "object"
+          },
+          "transformation": {
+            "description": "Transformation rules",
+            "type": "object"
+          }
+        },
+        "required": [
+          "input",
+          "operation"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "csv_parser",
+      "description": "Parse, generate, and manipulate CSV files with support for custom delimiters, quote characters, escape characters, header row detection and configuration, column type inference, data validation, filtering rows based on conditions, sorting, column transformations, aggregations, pivot operations, merging multiple CSV files, handling large files with streaming, encoding detection and conversion (UTF-8, Latin-1, etc.), Excel CSV format compatibility, TSV support, and conversion to/from JSON, XML, and database formats.",
+      "input_schema": {
+        "properties": {
+          "columns": {
+            "description": "Column names if no header",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "delimiter": {
+            "description": "Column delimiter (default: comma)",
+            "type": "string"
+          },
+          "encoding": {
+            "description": "Character encoding (default: UTF-8)",
+            "type": "string"
+          },
+          "filters": {
+            "description": "Row filter conditions",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "has_header": {
+            "description": "Whether first row is header",
+            "type": "boolean"
+          },
+          "input": {
+            "description": "CSV data to process",
+            "type": "string"
+          },
+          "operation": {
+            "description": "CSV operation type",
+            "enum": [
+              "parse",
+              "generate",
+              "transform",
+              "validate",
+              "merge"
+            ],
+            "type": "string"
+          },
+          "quote_char": {
+            "description": "Quote character (default: double quote)",
+            "type": "string"
+          },
+          "transformations": {
+            "description": "Column transformations",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "operation",
+          "input"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "data_transform",
+      "description": "Transform data between formats and structures with support for format conversions (JSON, XML, YAML, CSV, Excel, Parquet, Avro), data mapping and restructuring with custom templates, field renaming, type conversions (string, number, boolean, date, array, object), date/time parsing and formatting with timezone handling, string operations (concatenation, splitting, regex matching, case conversion), mathematical operations, conditional logic, array operations, object merging, data enrichment from external sources, and templating engines (Handlebars, Mustache, Liquid).",
+      "input_schema": {
+        "properties": {
+          "input_data": {
+            "description": "Data to transform",
+            "type": "object"
+          },
+          "input_format": {
+            "description": "Input data format",
+            "enum": [
+              "json",
+              "xml",
+              "yaml",
+              "csv",
+              "excel"
+            ],
+            "type": "string"
+          },
+          "mapping": {
+            "description": "Field mapping configuration",
+            "type": "object"
+          },
+          "options": {
+            "properties": {
+              "preserve_null": {
+                "type": "boolean"
+              },
+              "strict_mode": {
+                "type": "boolean"
+              },
+              "timezone": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "output_format": {
+            "description": "Desired output format",
+            "enum": [
+              "json",
+              "xml",
+              "yaml",
+              "csv",
+              "excel"
+            ],
+            "type": "string"
+          },
+          "template": {
+            "description": "Handlebars/Mustache template for output",
+            "type": "string"
+          },
+          "transformations": {
+            "description": "Data transformation rules",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "input_data"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "scheduler",
+      "description": "Schedule workflow executions with support for cron expressions, interval-based scheduling (every N minutes/hours/days), one-time scheduled executions, timezone-aware scheduling with daylight saving time handling, holiday calendars, execution windows (only run during business hours), maximum concurrent executions, execution history and audit logs, missed execution handling (run immediately or skip), schedule pause/resume, dynamic schedule adjustments, webhook-triggered schedules, and integration with external calendar systems (Google Calendar, Outlook).",
+      "input_schema": {
+        "properties": {
+          "cron_expression": {
+            "description": "Cron expression (e.g., '0 9 * * MON-FRI')",
+            "type": "string"
+          },
+          "enabled": {
+            "description": "Whether schedule is active",
+            "type": "boolean"
+          },
+          "end_time": {
+            "description": "ISO 8601 timestamp for schedule end",
+            "type": "string"
+          },
+          "interval": {
+            "description": "Interval-based schedule",
+            "properties": {
+              "unit": {
+                "enum": [
+                  "seconds",
+                  "minutes",
+                  "hours",
+                  "days",
+                  "weeks"
+                ],
+                "type": "string"
+              },
+              "value": {
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "max_concurrent": {
+            "description": "Maximum concurrent executions",
+            "type": "integer"
+          },
+          "missed_execution_handling": {
+            "description": "How to handle missed executions",
+            "enum": [
+              "run_immediately",
+              "skip",
+              "run_all_missed"
+            ],
+            "type": "string"
+          },
+          "schedule_type": {
+            "description": "Type of schedule",
+            "enum": [
+              "cron",
+              "interval",
+              "once",
+              "webhook"
+            ],
+            "type": "string"
+          },
+          "start_time": {
+            "description": "ISO 8601 timestamp for schedule start",
+            "type": "string"
+          },
+          "timezone": {
+            "description": "IANA timezone name (e.g., 'America/New_York')",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schedule_type"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "conditional_logic",
+      "description": "Implement conditional branching and routing logic in workflows with support for complex boolean expressions, comparison operators (equals, not equals, greater than, less than, contains, starts with, ends with, matches regex), logical operators (AND, OR, NOT, XOR), nested conditions, switch/case statements, fuzzy matching, data type checking, null/undefined handling, array includes checks, object property existence checks, custom JavaScript expressions, and integration with workflow variables and previous node outputs for dynamic decision making.",
+      "input_schema": {
+        "properties": {
+          "conditions": {
+            "description": "Condition rules to evaluate",
+            "items": {
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "logic": {
+                  "enum": [
+                    "AND",
+                    "OR"
+                  ],
+                  "type": "string"
+                },
+                "operator": {
+                  "enum": [
+                    "equals",
+                    "notEquals",
+                    "greaterThan",
+                    "lessThan",
+                    "greaterThanOrEqual",
+                    "lessThanOrEqual",
+                    "contains",
+                    "notContains",
+                    "startsWith",
+                    "endsWith",
+                    "regex",
+                    "isEmpty",
+                    "isNotEmpty",
+                    "isNull",
+                    "isNotNull"
+                  ],
+                  "type": "string"
+                },
+                "value": {}
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "continue_on_fail": {
+            "description": "Continue workflow even if condition evaluation fails",
+            "type": "boolean"
+          },
+          "default_output": {
+            "description": "Default route if no conditions match",
+            "type": "string"
+          },
+          "expression": {
+            "description": "Custom JavaScript expression for complex conditions",
+            "type": "string"
+          },
+          "mode": {
+            "description": "Conditional logic mode",
+            "enum": [
+              "if_else",
+              "switch",
+              "filter",
+              "route_all"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "conditions",
+          "mode"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "hubspot_crm",
+      "description": "Interact with HubSpot CRM for managing contacts, companies, deals, tickets, and custom objects with support for creating, updating, searching, and deleting records, managing associations between objects, timeline events, email integration, task management, meeting scheduling, note creation, document attachments, custom properties, pipelines and deal stages, contact lifecycle stages, lead scoring, list management, segmentation, workflow automation triggers, reporting and analytics, batch operations for bulk updates, webhook subscriptions for real-time updates, and OAuth authentication.",
+      "input_schema": {
+        "properties": {
+          "associations": {
+            "description": "Object associations to create",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "batch_input": {
+            "description": "Batch operation inputs",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "object_type": {
+            "description": "HubSpot object type",
+            "enum": [
+              "contact",
+              "company",
+              "deal",
+              "ticket",
+              "product",
+              "line_item",
+              "quote",
+              "custom"
+            ],
+            "type": "string"
+          },
+          "operation": {
+            "description": "CRM operation type",
+            "enum": [
+              "create",
+              "update",
+              "get",
+              "search",
+              "delete",
+              "associate",
+              "batch"
+            ],
+            "type": "string"
+          },
+          "properties": {
+            "description": "Object properties to set or update",
+            "type": "object"
+          },
+          "record_id": {
+            "description": "HubSpot record ID for get/update/delete operations",
+            "type": "string"
+          },
+          "search_criteria": {
+            "description": "Search filters and criteria",
+            "type": "object"
+          }
+        },
+        "required": [
+          "operation",
+          "object_type"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "stripe_payments",
+      "description": "Process payments and manage billing with Stripe including creating payment intents, processing charges, refunds, subscriptions, invoices, customers, payment methods, setup intents for saved cards, checkout sessions, webhook event handling, dispute management, payment confirmation, 3D Secure authentication, recurring billing with metered usage, trial periods, proration, coupon and discount management, tax calculation and collection, multi-currency support, Connect platform for marketplace payments, financial reporting, and compliance with PCI DSS, SCA (Strong Customer Authentication), and regional regulations.",
+      "input_schema": {
+        "properties": {
+          "amount": {
+            "description": "Amount in smallest currency unit (cents)",
+            "type": "integer"
+          },
+          "cancel_url": {
+            "description": "Cancel URL for checkout session",
+            "type": "string"
+          },
+          "currency": {
+            "description": "Three-letter ISO currency code",
+            "type": "string"
+          },
+          "customer": {
+            "description": "Stripe customer ID",
+            "type": "string"
+          },
+          "description": {
+            "description": "Payment description",
+            "type": "string"
+          },
+          "invoice_items": {
+            "description": "Invoice line items",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "metadata": {
+            "description": "Custom metadata key-value pairs",
+            "type": "object"
+          },
+          "operation": {
+            "description": "Stripe operation",
+            "enum": [
+              "create_payment_intent",
+              "confirm_payment",
+              "create_charge",
+              "create_refund",
+              "create_customer",
+              "create_subscription",
+              "create_invoice",
+              "create_checkout_session",
+              "retrieve",
+              "update",
+              "cancel"
+            ],
+            "type": "string"
+          },
+          "payment_method": {
+            "description": "Payment method ID",
+            "type": "string"
+          },
+          "receipt_email": {
+            "description": "Email for receipt",
+            "type": "string"
+          },
+          "return_url": {
+            "description": "Return URL after checkout",
+            "type": "string"
+          },
+          "subscription_items": {
+            "description": "Subscription line items",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "success_url": {
+            "description": "Success URL for checkout session",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "google_sheets",
+      "description": "Read, write, and manipulate Google Sheets data with support for reading cell ranges, writing data to cells, appending rows, updating cells, clearing ranges, batch operations, conditional formatting, data validation rules, named ranges, sheet management (create, delete, rename, copy), formula insertion, chart creation, pivot tables, filtering and sorting, cell formatting (fonts, colors, borders, number formats), merging cells, protecting sheets and ranges, sharing permissions, importing data from external sources, exporting to various formats (Excel, PDF, CSV), and real-time collaboration features.",
+      "input_schema": {
+        "properties": {
+          "major_dimension": {
+            "description": "Major dimension for data",
+            "enum": [
+              "ROWS",
+              "COLUMNS"
+            ],
+            "type": "string"
+          },
+          "operation": {
+            "description": "Sheets operation",
+            "enum": [
+              "read",
+              "write",
+              "append",
+              "update",
+              "clear",
+              "create_sheet",
+              "delete_sheet",
+              "batch_update",
+              "get_info"
+            ],
+            "type": "string"
+          },
+          "range": {
+            "description": "A1 notation range (e.g., 'Sheet1!A1:B10')",
+            "type": "string"
+          },
+          "requests": {
+            "description": "Batch update requests",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "sheet_name": {
+            "description": "Sheet tab name",
+            "type": "string"
+          },
+          "spreadsheet_id": {
+            "description": "Google Sheets spreadsheet ID",
+            "type": "string"
+          },
+          "value_input_option": {
+            "description": "How input data should be interpreted",
+            "enum": [
+              "RAW",
+              "USER_ENTERED"
+            ],
+            "type": "string"
+          },
+          "values": {
+            "description": "2D array of cell values",
+            "items": {
+              "type": "array"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "operation",
+          "spreadsheet_id"
+        ],
+        "type": "object"
+      },
+      "cache_control": {
+        "type": "ephemeral",
+        "ttl": "1h"
+      }
+    }
+  ]
+}

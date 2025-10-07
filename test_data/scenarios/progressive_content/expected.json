@@ -1,0 +1,51 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 100,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Start with basic analysis."
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I'll help you with basic analysis. What specific data or topic would you like me to analyze?"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Now I need more detailed analysis of customer behavior patterns, including purchase history, demographic segmentation, geographic distribution, seasonal trends, product preferences, price sensitivity, loyalty program participation, marketing campaign responsiveness, customer service interactions, return and refund patterns, cross-selling opportunities, upselling potential, churn risk factors, lifetime value calculations, acquisition channel effectiveness, retention rates, engagement metrics, social media activity, mobile app usage, website browsing behavior, search patterns, cart abandonment rates, checkout completion rates, payment method preferences, shipping preferences, delivery satisfaction, product review and rating behavior, referral activity, word-of-mouth marketing impact, brand perception, competitive switching behavior, and overall customer journey mapping across all touchpoints."
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "That's a comprehensive request for customer behavioral analysis. I'd be happy to help analyze these multiple dimensions of customer behavior. To provide the most valuable insights, I'll need to understand your specific business context and data availability."
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Finally, I need an exhaustive enterprise-level analysis that covers not only customer behavior but also operational excellence metrics, supply chain optimization opportunities, financial performance indicators, competitive landscape assessment, market opportunity analysis, digital transformation readiness evaluation, technology infrastructure assessment, cybersecurity risk analysis, regulatory compliance status, sustainability and environmental impact assessment, human resources and talent management analysis, organizational culture evaluation, leadership effectiveness assessment, innovation pipeline analysis, intellectual property portfolio review, strategic partnership opportunities, merger and acquisition potential, international expansion feasibility, revenue diversification strategies, cost optimization initiatives, operational efficiency improvements, quality assurance and process improvement opportunities, risk management framework evaluation, business continuity planning assessment, stakeholder engagement analysis, brand positioning and reputation management, customer experience optimization across all channels, omnichannel strategy development, personalization and customization capabilities, data analytics and business intelligence maturity, artificial intelligence and machine learning integration opportunities, automation potential assessment, scalability planning, performance measurement and KPI optimization, governance and compliance framework evaluation, crisis management preparedness, and comprehensive strategic planning recommendations for sustainable long-term growth and competitive advantage in the evolving marketplace."
+        }
+      ]
+    }
+  ]
+}

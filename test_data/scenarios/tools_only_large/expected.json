@@ -1,0 +1,183 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 100,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Help me analyze customer data using the available tools."
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "name": "customer_analytics_suite",
+      "description": "A comprehensive analytics tool for customer data analysis that provides advanced statistical modeling capabilities, machine learning algorithms for predictive analytics, natural language processing for sentiment analysis of customer feedback, real-time data visualization dashboards, automated report generation with customizable templates, advanced segmentation and clustering algorithms for customer profiling, cohort analysis for understanding customer lifecycle patterns, A/B testing frameworks for marketing campaign optimization, churn prediction models with actionable insights, lifetime value calculations using sophisticated algorithms, recommendation engine integration for personalized product suggestions, geographic and demographic analysis tools, seasonal trend analysis with forecasting capabilities, competitive benchmarking features, integration with multiple data sources including CRM systems, social media platforms, email marketing tools, e-commerce platforms, and third-party market research databases. The tool also includes advanced data cleaning and preprocessing capabilities, anomaly detection for fraud prevention, real-time alerting systems for critical metrics, customizable KPI tracking, advanced SQL query builder, API integration capabilities, automated data backup and recovery systems, role-based access control for data security, GDPR compliance features, and comprehensive audit trails for data governance.",
+      "input_schema": {
+        "properties": {
+          "advanced_options": {
+            "description": "Advanced analysis options and machine learning configurations",
+            "properties": {
+              "anomaly_detection": {
+                "type": "boolean"
+              },
+              "confidence_intervals": {
+                "type": "boolean"
+              },
+              "machine_learning_models": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "predictive_forecasting": {
+                "type": "boolean"
+              },
+              "real_time_monitoring": {
+                "type": "boolean"
+              },
+              "statistical_significance_testing": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          },
+          "analysis_type": {
+            "description": "Types of analysis to perform on the customer data",
+            "items": {
+              "enum": [
+                "demographic_segmentation",
+                "behavioral_analysis",
+                "sentiment_analysis",
+                "churn_prediction",
+                "lifetime_value_calculation",
+                "purchase_pattern_analysis",
+                "product_recommendation",
+                "seasonal_trend_analysis",
+                "cohort_analysis",
+                "geographic_analysis",
+                "campaign_performance",
+                "customer_journey_mapping",
+                "retention_analysis",
+                "satisfaction_scoring",
+                "competitive_benchmarking",
+                "market_opportunity_analysis",
+                "price_sensitivity_analysis",
+                "cross_sell_upsell_opportunities",
+                "customer_service_optimization",
+                "fraud_detection_analysis"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "data_source": {
+            "description": "The primary data source to analyze (crm, ecommerce, social_media, email_marketing, surveys, reviews, support_tickets, mobile_app_analytics, web_analytics, payment_processing)",
+            "type": "string"
+          },
+          "filters": {
+            "description": "Filters to apply to the dataset before analysis",
+            "properties": {
+              "acquisition_channels": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "customer_age_range": {
+                "properties": {
+                  "max": {
+                    "type": "integer"
+                  },
+                  "min": {
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              },
+              "customer_segments": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "geographic_regions": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "product_categories": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "purchase_amount_range": {
+                "properties": {
+                  "max": {
+                    "type": "number"
+                  },
+                  "min": {
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          },
+          "output_format": {
+            "description": "Desired format for the analysis results",
+            "enum": [
+              "interactive_dashboard",
+              "pdf_report",
+              "excel_spreadsheet",
+              "json_data",
+              "csv_export",
+              "api_response"
+            ],
+            "type": "string"
+          },
+          "time_period": {
+            "description": "Time period for the analysis",
+            "properties": {
+              "end_date": {
+                "format": "date",
+                "type": "string"
+              },
+              "granularity": {
+                "enum": [
+                  "daily",
+                  "weekly",
+                  "monthly",
+                  "quarterly",
+                  "yearly"
+                ],
+                "type": "string"
+              },
+              "start_date": {
+                "format": "date",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "data_source",
+          "analysis_type",
+          "time_period"
+        ],
+        "type": "object"
+      },
+      "cache_control": {
+        "type": "ephemeral",
+        "ttl": "1h"
+      }
+    }
+  ]
+}

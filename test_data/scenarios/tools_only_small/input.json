@@ -1,0 +1,33 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 100,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Use the calculator tool."
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "name": "calculator",
+      "description": "Basic calculator for arithmetic operations",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "operation": {
+            "type": "string",
+            "enum": ["add", "subtract", "multiply", "divide"]
+          },
+          "a": {"type": "number"},
+          "b": {"type": "number"}
+        },
+        "required": ["operation", "a", "b"]
+      }
+    }
+  ]
+}

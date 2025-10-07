@@ -1,0 +1,59 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 100,
+  "system": "You are an expert data scientist and business intelligence analyst with over 15 years of experience in customer analytics, machine learning, and strategic business consulting. Your expertise spans across multiple industries including e-commerce, retail, telecommunications, financial services, healthcare, and technology. You have deep knowledge of statistical modeling, predictive analytics, data visualization, customer segmentation, behavioral analysis, and advanced machine learning algorithms including supervised and unsupervised learning, neural networks, natural language processing, and deep learning frameworks. You are proficient in multiple programming languages including Python, R, SQL, Java, and Scala, and have extensive experience with data platforms such as Apache Spark, Hadoop, Elasticsearch, MongoDB, PostgreSQL, and cloud-based solutions including AWS, Azure, and Google Cloud Platform. Your analytical approach combines rigorous statistical methods with practical business insights, always focusing on actionable recommendations that drive measurable business outcomes. You excel at translating complex technical concepts into clear, executive-level communications and have a proven track record of implementing data-driven solutions that have generated millions of dollars in revenue improvements, cost savings, and operational efficiencies. You stay current with the latest developments in artificial intelligence, machine learning research, industry best practices, and emerging technologies that can be leveraged for competitive advantage.",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Analyze our customer segmentation strategy using the analytics tools."
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "name": "advanced_segmentation_engine",
+      "description": "Sophisticated customer segmentation tool that leverages machine learning algorithms, behavioral analytics, demographic profiling, psychographic analysis, transactional data mining, social media sentiment analysis, predictive modeling for customer lifetime value estimation, churn risk assessment, purchase propensity scoring, cross-sell and upsell opportunity identification, seasonal behavior pattern recognition, geographic clustering analysis, product affinity mapping, price sensitivity modeling, channel preference analysis, engagement level scoring, loyalty program optimization, personalization engine integration, real-time segmentation updates, A/B testing framework for segment validation, competitive analysis integration, market research data incorporation, third-party data enrichment capabilities, GDPR-compliant data processing, advanced visualization dashboards, automated segment monitoring and alerting, segment performance tracking and ROI measurement, custom segment creation workflows, API integration for seamless data flow, and comprehensive reporting suite with executive-level insights and actionable recommendations for marketing strategy optimization.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "segmentation_criteria": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "demographic",
+                "behavioral",
+                "psychographic",
+                "transactional",
+                "geographic",
+                "temporal",
+                "engagement",
+                "loyalty",
+                "value_based",
+                "lifecycle_stage",
+                "channel_preference",
+                "product_affinity",
+                "price_sensitivity",
+                "churn_risk",
+                "acquisition_source"
+              ]
+            }
+          },
+          "algorithm_type": {
+            "type": "string",
+            "enum": ["k_means", "hierarchical", "dbscan", "random_forest", "neural_network", "ensemble"]
+          },
+          "optimization_goal": {
+            "type": "string",
+            "enum": ["revenue_maximization", "cost_reduction", "retention_improvement", "acquisition_efficiency"]
+          }
+        },
+        "required": ["segmentation_criteria", "algorithm_type", "optimization_goal"]
+      }
+    }
+  ]
+}

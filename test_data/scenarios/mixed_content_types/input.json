@@ -1,0 +1,28 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 100,
+  "system": "You are an expert multimodal AI analyst capable of processing and analyzing various types of content including text, images, documents, and data visualizations to provide comprehensive insights and recommendations.",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Please analyze the attached image along with this comprehensive business context: Our e-commerce company has been experiencing declining conversion rates over the past six months, despite increased traffic and marketing spend. We need to understand the root causes and develop actionable strategies to improve our online sales performance, customer engagement, and overall digital marketing effectiveness across all channels including search engine optimization, pay-per-click advertising, social media marketing, email campaigns, content marketing, influencer partnerships, and affiliate marketing programs."
+        },
+        {
+          "type": "image",
+          "source": {
+            "type": "base64",
+            "media_type": "image/png",
+            "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+          }
+        },
+        {
+          "type": "text",
+          "text": "Additionally, here are the key performance metrics from our analytics dashboard: monthly visitors have increased 35% year-over-year, bounce rate has risen to 68%, average session duration has decreased to 2.1 minutes, cart abandonment rate is at 73%, customer acquisition cost has increased by 42%, and customer lifetime value has decreased by 18%. We need immediate recommendations for optimization strategies that can help reverse these trends and improve our return on advertising spend while maintaining sustainable growth and profitability."
+        }
+      ]
+    }
+  ]
+}

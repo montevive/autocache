@@ -1,0 +1,16 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 100,
+  "system": "You are a helpful assistant.",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "I need you to provide a comprehensive analysis of our company's digital transformation journey over the past five years, including detailed evaluation of our technology infrastructure upgrades, software platform migrations, cloud adoption strategies, cybersecurity enhancements, data management and analytics implementations, digital marketing initiatives, e-commerce platform development, customer experience optimization, employee training and change management programs, vendor relationships and third-party integrations, ROI analysis of digital investments, competitive positioning in the digital landscape, emerging technology evaluation and adoption roadmap, organizational culture changes, process automation implementations, artificial intelligence and machine learning integration, Internet of Things deployments, blockchain technology exploration, mobile application development, social media strategy evolution, content management system upgrades, customer relationship management system enhancements, enterprise resource planning system modernization, business intelligence and reporting tool implementations, collaboration platform deployments, video conferencing and remote work infrastructure, digital payment processing solutions, supply chain digitization efforts, inventory management system improvements, quality assurance and testing automation, DevOps and continuous integration implementations, data backup and disaster recovery planning, regulatory compliance and governance frameworks, privacy and data protection measures, sustainability and green technology initiatives, innovation lab establishment, partnership and acquisition strategies, talent acquisition and retention programs, performance measurement and key performance indicator tracking, budget allocation and financial planning for digital initiatives, risk management and mitigation strategies, customer feedback integration and response systems, market research and competitive intelligence gathering, product development and innovation processes, sales enablement and customer relationship management tools, marketing automation and lead generation systems, customer support and service desk modernization, knowledge management and documentation systems, project management and collaboration tools, and strategic planning for future digital transformation phases. Please provide actionable recommendations, identify key success factors, highlight potential challenges and risks, suggest optimization opportunities, and create a roadmap for continued digital evolution that aligns with our business objectives and market positioning goals."
+        }
+      ]
+    }
+  ]
+}

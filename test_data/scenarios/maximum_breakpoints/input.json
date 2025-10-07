@@ -1,0 +1,79 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 100,
+  "system": "You are a comprehensive business intelligence and analytics expert with extensive experience in enterprise data analysis, strategic planning, market research, competitive intelligence, financial modeling, risk assessment, operational optimization, and digital transformation initiatives. Your expertise spans across multiple business functions including marketing analytics, sales performance analysis, customer relationship management, supply chain optimization, human resources analytics, financial planning and analysis, product management, project management, and executive decision support. You have deep knowledge of industry-standard tools, methodologies, best practices, and emerging technologies that drive business success in today's competitive marketplace. You excel at providing actionable insights, strategic recommendations, and data-driven solutions that help organizations achieve their goals, optimize their operations, and maintain competitive advantages in rapidly evolving market conditions. This system prompt is designed to exceed the minimum token threshold for cache injection and will serve as the first cache breakpoint in a scenario that tests the maximum number of cache breakpoints allowed by Anthropic's prompt caching system.",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "I need you to analyze multiple large datasets and provide comprehensive business intelligence insights. Here's the first dataset containing detailed customer transaction records from our e-commerce platform spanning the last three years, including purchase history, product preferences, seasonal buying patterns, geographic distribution, demographic information, customer service interactions, return and refund data, loyalty program participation, email marketing engagement metrics, social media interaction data, website browsing behavior, mobile app usage statistics, payment method preferences, shipping and delivery preferences, product review and rating history, referral program activity, promotional campaign response rates, customer lifetime value calculations, churn risk indicators, and cross-selling and upselling opportunities. Please provide detailed analysis of customer segmentation strategies, retention improvement recommendations, revenue optimization opportunities, and predictive insights for future business planning."
+        },
+        {
+          "type": "image",
+          "source": {
+            "type": "base64",
+            "media_type": "image/png",
+            "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "Thank you for providing the customer transaction dataset. I can see this is a comprehensive collection of e-commerce data spanning three years. Let me analyze the key patterns and provide strategic insights."
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Here's the second major dataset containing detailed product catalog information, inventory management records, supplier relationships, procurement data, pricing history, competitive pricing analysis, product performance metrics, seasonal demand patterns, supply chain logistics, warehouse operations, quality control metrics, product lifecycle management, new product launch performance, discontinued product analysis, vendor performance evaluations, cost analysis, profit margin calculations, inventory turnover rates, stockout analysis, demand forecasting accuracy, promotional pricing effectiveness, bundle and cross-sell product relationships, customer feedback and product ratings correlation, return rates by product category, shipping and fulfillment costs, and international market performance data. I need comprehensive analysis of inventory optimization opportunities, pricing strategy recommendations, supplier relationship improvements, and product portfolio optimization strategies."
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "name": "comprehensive_business_analytics_platform",
+      "description": "Advanced enterprise analytics platform with machine learning capabilities, predictive modeling, statistical analysis, data visualization, automated reporting, real-time dashboards, customer segmentation, behavioral analysis, financial modeling, operational intelligence, competitive benchmarking, market research integration, risk assessment tools, performance tracking, KPI monitoring, trend analysis, forecasting algorithms, optimization engines, A/B testing frameworks, cohort analysis, funnel analysis, attribution modeling, sentiment analysis, text mining, image recognition, anomaly detection, fraud prevention, recommendation systems, personalization engines, automated insights generation, executive summary creation, strategic planning support, and comprehensive business intelligence solutions designed for enterprise-scale data analysis and decision support systems.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "analysis_modules": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "customer_analytics", "product_analytics", "financial_analytics", "operational_analytics",
+                "marketing_analytics", "sales_analytics", "supply_chain_analytics", "competitive_analytics",
+                "risk_analytics", "predictive_modeling", "machine_learning", "statistical_analysis",
+                "data_visualization", "reporting", "forecasting", "optimization", "segmentation",
+                "behavioral_analysis", "sentiment_analysis", "trend_analysis", "performance_tracking"
+              ]
+            }
+          },
+          "data_sources": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "time_horizons": {
+            "type": "array",
+            "items": {"type": "string", "enum": ["historical", "current", "short_term_forecast", "long_term_forecast"]}
+          },
+          "output_formats": {
+            "type": "array",
+            "items": {"type": "string", "enum": ["dashboard", "report", "presentation", "data_export", "api_response"]}
+          }
+        },
+        "required": ["analysis_modules", "data_sources", "time_horizons"]
+      }
+    }
+  ]
+}

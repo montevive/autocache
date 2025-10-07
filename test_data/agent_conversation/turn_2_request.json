@@ -1,0 +1,157 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 1024,
+  "system": "You are an advanced AI coding assistant with deep expertise in software development, code review, debugging, testing, architecture design, and development workflows. Your primary goal is to help developers write better code, solve technical problems, and improve their development processes through systematic analysis and best practices.\n\nCORE CAPABILITIES:\nYou have access to powerful tools that allow you to search code repositories, run tests, execute commands, analyze performance, review pull requests, and manage development workflows. You can read and modify files, search through large codebases, execute shell commands, run test suites, perform git operations, analyze dependencies, and conduct comprehensive code reviews.\n\nMETHODOLOGY:\nWhen helping users, you should: (1) Analyze the problem thoroughly before suggesting solutions, understanding the root cause rather than treating symptoms, (2) Provide clear, well-structured explanations with relevant code examples and practical demonstrations, (3) Use the appropriate tools strategically to gather information and execute tasks efficiently, (4) Follow established software engineering best practices and proven design patterns, (5) Consider multiple dimensions in your recommendations including performance characteristics, security implications, maintainability requirements, and scalability potential, (6) Ask clarifying questions when requirements are ambiguous or incomplete, ensuring you understand the full context, (7) Explain trade-offs between different approaches, helping users make informed decisions, (8) Reference official documentation, established conventions, and industry standards, (9) Help users understand not just what to do, but why it's the right approach and how it fits into broader software engineering principles, (10) Be thorough in your analysis while remaining concise in communication, providing appropriate depth without overwhelming the user.\n\nTECHNICAL EXPERTISE:\nYou understand multiple programming languages including Python, JavaScript, TypeScript, Java, Go, Rust, C++, C#, Ruby, PHP, Swift, Kotlin, Scala, and more. You're deeply familiar with modern frameworks and libraries including React, Vue, Angular, Django, Flask, FastAPI, Spring Boot, .NET Core, Express, NestJS, Rails, Laravel, and others. You understand cloud platforms (AWS, Azure, GCP, Cloudflare), databases (PostgreSQL, MySQL, MongoDB, Redis, Elasticsearch), containerization (Docker, Kubernetes, Docker Compose), message queues (RabbitMQ, Kafka, Redis), and development tools across the entire stack.\n\nDESIGN PATTERNS & ARCHITECTURE:\nYou're well-versed in design patterns (Singleton, Factory, Observer, Strategy, Decorator, etc.), architectural patterns (MVC, MVVM, Clean Architecture, Hexagonal Architecture, Event-Driven Architecture, Microservices, Monolith, Serverless), and can help design systems that are modular, testable, and maintainable. You understand SOLID principles, DRY, KISS, YAGNI, and other fundamental software engineering concepts.\n\nTESTING & QUALITY:\nYou can help implement comprehensive testing strategies including unit tests, integration tests, end-to-end tests, performance tests, and security tests. You're familiar with testing frameworks (pytest, jest, JUnit, Mocha, Cypress, Playwright), test-driven development (TDD), behavior-driven development (BDD), and continuous testing practices. You can identify edge cases, design effective test cases, and help achieve meaningful code coverage.\n\nDEVOPS & CI/CD:\nYou understand modern DevOps practices, CI/CD pipelines (GitHub Actions, GitLab CI, Jenkins, CircleCI), infrastructure as code (Terraform, CloudFormation, Pulumi), configuration management, deployment strategies (blue-green, canary, rolling updates), monitoring and observability (Prometheus, Grafana, ELK stack, Datadog), and site reliability engineering principles.\n\nSECURITY:\nYou can identify security vulnerabilities, implement secure coding practices, understand common attack vectors (SQL injection, XSS, CSRF, authentication bypasses), apply defense-in-depth strategies, implement proper authentication and authorization, handle sensitive data securely, and follow security frameworks like OWASP Top 10.\n\nPERFORMANCE:\nYou can analyze performance bottlenecks, optimize database queries, implement caching strategies, reduce algorithmic complexity, optimize resource usage, implement lazy loading and code splitting, use profiling tools effectively, and design systems that can scale horizontally and vertically.\n\nYou can help with everything from writing a single function to architecting complex distributed systems, always focusing on delivering practical, actionable guidance that improves code quality and developer productivity.\n\nCOLLABORATION & COMMUNICATION:\nWhen working with development teams, emphasize clear communication, comprehensive documentation, knowledge sharing, code review best practices, pair programming benefits, effective use of version control, and maintaining high standards of code quality. Support agile methodologies, sprint planning, backlog refinement, and continuous improvement processes to help teams deliver value efficiently and reliably.",
+  "tools": [
+    {
+      "name": "search_codebase",
+      "description": "Search through code files in a repository using regular expressions or text patterns. Supports filtering by file type, directory path, and language. Can search for function definitions, class declarations, variable usage, import statements, comments, and any text patterns. Returns matching file paths with line numbers and surrounding context. Useful for understanding code structure, finding implementations, tracking dependencies, and discovering usage patterns across the codebase.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "pattern": {"type": "string", "description": "Search pattern (text or regex)"},
+          "file_type": {"type": "string", "description": "Filter by file extension (e.g., .py, .js, .go)"},
+          "directory": {"type": "string", "description": "Limit search to specific directory"},
+          "case_sensitive": {"type": "boolean", "description": "Whether search is case sensitive", "default": false},
+          "context_lines": {"type": "integer", "description": "Number of context lines to show around matches", "default": 3},
+          "max_results": {"type": "integer", "description": "Maximum number of results to return", "default": 100}
+        },
+        "required": ["pattern"]
+      }
+    },
+    {
+      "name": "read_file",
+      "description": "Read the complete contents of a file from the repository. Returns the full file content with line numbers for easy reference. Supports all text-based file formats including source code, configuration files, documentation, data files, and scripts. Can handle large files and provides syntax highlighting information when available. Essential for reviewing code, understanding implementations, analyzing configurations, and examining file contents in detail.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "file_path": {"type": "string", "description": "Path to the file to read"},
+          "start_line": {"type": "integer", "description": "Optional: start reading from this line number"},
+          "end_line": {"type": "integer", "description": "Optional: stop reading at this line number"},
+          "show_line_numbers": {"type": "boolean", "description": "Include line numbers in output", "default": true}
+        },
+        "required": ["file_path"]
+      }
+    },
+    {
+      "name": "write_file",
+      "description": "Create a new file or overwrite an existing file with provided content. Automatically creates parent directories if they don't exist. Supports all text-based file formats. Preserves file permissions when overwriting. Can be used to generate code files, configuration files, documentation, test files, scripts, and any other text-based content. Returns confirmation of write operation and final file path.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "file_path": {"type": "string", "description": "Path where file should be written"},
+          "content": {"type": "string", "description": "Content to write to the file"},
+          "create_dirs": {"type": "boolean", "description": "Create parent directories if they don't exist", "default": true},
+          "backup_existing": {"type": "boolean", "description": "Create backup of existing file before overwriting", "default": false}
+        },
+        "required": ["file_path", "content"]
+      }
+    },
+    {
+      "name": "run_command",
+      "description": "Execute shell commands in the development environment. Can run build scripts, package managers, linters, formatters, test runners, git commands, deployment scripts, and any other command-line tools. Captures stdout, stderr, and exit codes. Supports timeouts and working directory specification. Useful for running tests, installing dependencies, checking code quality, managing git operations, and automating development tasks. Security-restricted to prevent destructive operations.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "command": {"type": "string", "description": "Shell command to execute"},
+          "working_dir": {"type": "string", "description": "Directory to run command in (default: repo root)"},
+          "timeout": {"type": "integer", "description": "Command timeout in seconds", "default": 60},
+          "env_vars": {"type": "object", "description": "Environment variables to set"},
+          "capture_output": {"type": "boolean", "description": "Capture command output", "default": true}
+        },
+        "required": ["command"]
+      }
+    },
+    {
+      "name": "run_tests",
+      "description": "Execute test suites with support for multiple testing frameworks including pytest, jest, go test, JUnit, and others. Can run all tests, specific test files, individual test cases, or tests matching patterns. Provides detailed output including pass/fail status, execution time, coverage metrics, assertion failures, and error traces. Supports parallel execution, test filtering, and custom test configurations. Essential for verifying code correctness and ensuring quality.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "test_path": {"type": "string", "description": "Path to test file, directory, or pattern"},
+          "framework": {"type": "string", "enum": ["pytest", "jest", "go_test", "junit", "auto"], "description": "Test framework to use", "default": "auto"},
+          "verbose": {"type": "boolean", "description": "Show detailed test output", "default": false},
+          "coverage": {"type": "boolean", "description": "Include coverage report", "default": false},
+          "parallel": {"type": "boolean", "description": "Run tests in parallel", "default": false},
+          "stop_on_failure": {"type": "boolean", "description": "Stop on first failure", "default": false}
+        },
+        "required": ["test_path"]
+      }
+    },
+    {
+      "name": "git_operations",
+      "description": "Perform git version control operations including status checking, branch management, commit creation, diff viewing, log inspection, and repository analysis. Can show uncommitted changes, switch branches, create commits with messages, view file history, compare branches, and analyze repository state. Supports both local and remote repository operations. Essential for code review, change tracking, version management, and collaboration workflows.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "operation": {"type": "string", "enum": ["status", "diff", "log", "branch", "checkout", "commit", "show", "blame"], "description": "Git operation to perform"},
+          "path": {"type": "string", "description": "File or directory path (for diff, log, blame)"},
+          "branch": {"type": "string", "description": "Branch name (for checkout, branch)"},
+          "commit_message": {"type": "string", "description": "Commit message (for commit operation)"},
+          "options": {"type": "object", "description": "Additional git options"},
+          "num_commits": {"type": "integer", "description": "Number of commits to show in log", "default": 10}
+        },
+        "required": ["operation"]
+      }
+    },
+    {
+      "name": "analyze_dependencies",
+      "description": "Analyze project dependencies across different package managers and ecosystems. Detects outdated packages, security vulnerabilities, license issues, and dependency conflicts. Supports npm, pip, go modules, maven, gradle, and other package managers. Provides upgrade recommendations, security advisories, dependency trees, and license compliance information. Can check for available updates and suggest compatible version ranges. Essential for maintaining secure and up-to-date projects.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "package_manager": {"type": "string", "enum": ["npm", "pip", "go", "maven", "gradle", "auto"], "description": "Package manager to analyze", "default": "auto"},
+          "check_security": {"type": "boolean", "description": "Check for security vulnerabilities", "default": true},
+          "check_updates": {"type": "boolean", "description": "Check for available updates", "default": true},
+          "check_licenses": {"type": "boolean", "description": "Analyze licenses", "default": false},
+          "include_dev": {"type": "boolean", "description": "Include dev dependencies", "default": true}
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "code_review",
+      "description": "Perform automated code review analyzing code quality, potential bugs, security issues, performance problems, style violations, complexity metrics, and best practice adherence. Uses static analysis tools, linters, and custom rules. Checks for common anti-patterns, code smells, security vulnerabilities, resource leaks, race conditions, and maintainability issues. Provides severity ratings, specific recommendations, and code improvement suggestions with examples.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "file_paths": {"type": "array", "items": {"type": "string"}, "description": "Files to review"},
+          "review_type": {"type": "string", "enum": ["security", "performance", "style", "comprehensive"], "description": "Type of review", "default": "comprehensive"},
+          "strict_mode": {"type": "boolean", "description": "Enable strict checking rules", "default": false},
+          "auto_fix": {"type": "boolean", "description": "Attempt to auto-fix issues where possible", "default": false},
+          "output_format": {"type": "string", "enum": ["text", "json", "markdown"], "description": "Output format", "default": "text"}
+        },
+        "required": ["file_paths"]
+      }
+    }
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "I'm working on a Python project and I'm getting intermittent test failures. Can you help me investigate what might be causing this?"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I'll help you investigate the intermittent test failures. Let me start by gathering some information about your test suite and recent changes. I'll need to:\n\n1. First, check your test files and see what tests exist\n2. Look at recent git changes that might have introduced issues\n3. Run the tests to see if I can reproduce the failures\n\nLet me start by searching for test files in your project."
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "The tests are in the 'tests/' directory. The failures seem to happen randomly when running the full test suite with pytest."
+        }
+      ]
+    }
+  ]
+}

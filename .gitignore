@@ -1,0 +1,78 @@
+# Binaries
+autocache
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.txt
+
+# Go workspace file
+go.work
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.real
+
+# Log files
+*.log
+proxy.log
+proxy_new.log
+proxy_real.log
+proxy_debug.log
+debug_proxy.log
+
+# Test output files
+test_response.json
+test_fixed_response.json
+debug_response.json
+debug_system.json
+response_real.json
+headers.txt
+test_headers.txt
+headers_real.txt
+
+# Test data and results
+test_results/
+
+# Development/debugging test scripts (not for public repo)
+debug_tokens.sh
+test_actual_tokens.sh
+test_large_content.sh
+test_massive_content.sh
+test_real_cache.sh
+test_real_massive.sh
+test_real_1024.sh
+test_n8n_*.sh
+
+# n8n-specific integration files (internal testing)
+docker-compose.n8n.yml
+n8n_workflows/
+N8N_*.md
+TROUBLESHOOTING_N8N.md
+
+# Private deployment files
+k8s-manifest.yaml
+
+# IDE and editor files
+.idea/
+.vscode/
+.claude/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+tmp/
+temp/
+*.tmp
