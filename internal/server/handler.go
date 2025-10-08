@@ -124,7 +124,7 @@ func (ah *AutocacheHandler) handleNonStreamingRequest(w http.ResponseWriter, r *
 
 	// Extract API key
 	apiKey := ah.getAPIKey(r)
-	headers := client.CreateHeadersMap(r.Header, apiKey)
+	headers := client.CreateHeadersMap(r.Header, apiKey, ah.logger)
 
 	// Forward the request
 	resp, err := ah.proxyClient.ForwardRequest(req, headers)
@@ -187,7 +187,7 @@ func (ah *AutocacheHandler) handleStreamingRequest(w http.ResponseWriter, r *htt
 
 	// Extract API key
 	apiKey := ah.getAPIKey(r)
-	headers := client.CreateHeadersMap(r.Header, apiKey)
+	headers := client.CreateHeadersMap(r.Header, apiKey, ah.logger)
 
 	// Forward the streaming request
 	err = ah.proxyClient.ForwardStreamingRequest(req, headers, w)
@@ -214,7 +214,7 @@ func (ah *AutocacheHandler) forwardWithoutCaching(w http.ResponseWriter, r *http
 	w.Header().Set("X-Autocache-Injected", "false")
 
 	apiKey := ah.getAPIKey(r)
-	headers := client.CreateHeadersMap(r.Header, apiKey)
+	headers := client.CreateHeadersMap(r.Header, apiKey, ah.logger)
 
 	if client.IsStreamingRequest(req) {
 		err := ah.proxyClient.ForwardStreamingRequest(req, headers, w)
@@ -302,7 +302,7 @@ func (ah *AutocacheHandler) shouldBypassCaching(r *http.Request) bool {
 // getAPIKey extracts API key from request or config
 func (ah *AutocacheHandler) getAPIKey(r *http.Request) string {
 	// First try to get from request headers
-	apiKey := client.ExtractAPIKey(r.Header)
+	apiKey := client.ExtractAPIKey(r.Header, ah.logger)
 	if apiKey != "" {
 		return apiKey
 	}
