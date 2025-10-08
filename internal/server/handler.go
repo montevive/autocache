@@ -159,7 +159,7 @@ func (ah *AutocacheHandler) handleNonStreamingRequest(w http.ResponseWriter, r *
 	// Write the response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(responseBody)
+	_, _ = w.Write(responseBody)
 
 	// Store metadata for savings endpoint
 	ah.storeRequestMetadata(metadata)
@@ -246,7 +246,7 @@ func (ah *AutocacheHandler) forwardWithoutCaching(w http.ResponseWriter, r *http
 		}
 
 		w.WriteHeader(resp.StatusCode)
-		w.Write(responseBody)
+		_, _ = w.Write(responseBody)
 	}
 }
 
@@ -323,7 +323,7 @@ func (ah *AutocacheHandler) writeError(w http.ResponseWriter, statusCode int, me
 		},
 	}
 
-	json.NewEncoder(w).Encode(errorResp)
+	_ = json.NewEncoder(w).Encode(errorResp)
 }
 
 // writeRawResponse writes a raw response with headers
@@ -339,7 +339,7 @@ func (ah *AutocacheHandler) writeRawResponse(w http.ResponseWriter, statusCode i
 	}
 
 	w.WriteHeader(statusCode)
-	w.Write(body)
+	_, _ = w.Write(body)
 }
 
 // HandleHealth handles health check requests
@@ -353,7 +353,7 @@ func (ah *AutocacheHandler) HandleHealth(w http.ResponseWriter, r *http.Request)
 		"strategy": ah.config.CacheStrategy,
 	}
 
-	json.NewEncoder(w).Encode(health)
+	_ = json.NewEncoder(w).Encode(health)
 }
 
 // HandleMetrics handles metrics endpoint
@@ -402,7 +402,7 @@ func (ah *AutocacheHandler) HandleMetrics(w http.ResponseWriter, r *http.Request
 		},
 	}
 
-	json.NewEncoder(w).Encode(metrics)
+	_ = json.NewEncoder(w).Encode(metrics)
 }
 
 // HandleSavings handles the savings analytics endpoint
@@ -495,7 +495,7 @@ func (ah *AutocacheHandler) HandleSavings(w http.ResponseWriter, r *http.Request
 		},
 	}
 
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 // SetupRoutes sets up HTTP routes
@@ -580,7 +580,7 @@ func (ah *AutocacheHandler) PanicRecoveryMiddleware(next http.Handler) http.Hand
 					},
 				}
 
-				json.NewEncoder(w).Encode(errorResp)
+				_ = json.NewEncoder(w).Encode(errorResp)
 			}
 		}()
 
