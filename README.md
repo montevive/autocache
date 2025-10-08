@@ -80,6 +80,87 @@ Several tools offer prompt caching support, but Autocache is unique in combining
 🐳 **Docker Ready**: Easy deployment with Docker and docker-compose
 📋 **Comprehensive Logging**: Detailed request/response logging with structured output
 
+## Getting Started with Docker
+
+The fastest way to start using Autocache is with the published Docker image from GitHub Container Registry:
+
+### Quick Start (30 seconds)
+
+**1. Run the container:**
+
+```bash
+# Option A: With API key in environment variable
+docker run -d -p 8080:8080 \
+  -e ANTHROPIC_API_KEY=sk-ant-... \
+  --name autocache \
+  ghcr.io/montevive/autocache:latest
+
+# Option B: Without API key (pass it per-request in headers)
+docker run -d -p 8080:8080 \
+  --name autocache \
+  ghcr.io/montevive/autocache:latest
+```
+
+**2. Verify it's running:**
+
+```bash
+curl http://localhost:8080/health
+# {"status":"healthy","version":"1.0.1","strategy":"moderate"}
+```
+
+**3. Test with a request:**
+
+```bash
+# If using Option A (env var), no header needed:
+curl http://localhost:8080/v1/messages \
+  -H "Content-Type: application/json" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-3-5-haiku-20241022",
+    "max_tokens": 50,
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+
+# If using Option B (no env var), pass API key in header:
+curl http://localhost:8080/v1/messages \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: sk-ant-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-3-5-haiku-20241022",
+    "max_tokens": 50,
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+**4. Check the cache metadata in response headers:**
+
+```bash
+X-Autocache-Injected: true
+X-Autocache-Cache-Ratio: 0.750
+X-Autocache-ROI-Percent: 85.2
+X-Autocache-Savings-100req: $1.75
+```
+
+### Available Docker Tags
+
+- `latest` - Latest stable release (recommended)
+- `v1.0.1` - Specific version tag
+- `1.0.1`, `1.0`, `1` - Semantic version aliases
+
+### Docker Image Details
+
+- **Registry**: `ghcr.io/montevive/autocache`
+- **Architectures**: `linux/amd64`, `linux/arm64`
+- **Size**: ~29 MB (optimized Alpine-based image)
+- **Source**: https://github.com/montevive/autocache
+
+### Next Steps
+
+- For **production deployments** with docker-compose, see the [Quick Start](#quick-start) section below
+- For **configuration options**, see [Configuration](#configuration)
+- For **n8n integration**, see our [n8n setup guide](N8N_TESTING.md)
+
 ## Quick Start
 
 ### Using Docker Compose (Recommended)
