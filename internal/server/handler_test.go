@@ -27,7 +27,7 @@ func createMockAnthropicServer() *httptest.Server {
 		var req types.AnthropicRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"error": map[string]interface{}{
 					"type":    "invalid_request_error",
 					"message": "Invalid JSON",
@@ -90,7 +90,7 @@ func createMockAnthropicServer() *httptest.Server {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 	}))
 }
 
@@ -545,7 +545,7 @@ func TestLogMiddleware(t *testing.T) {
 	// Create a simple test handler
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		_, _ = w.Write([]byte("OK"))
 	})
 
 	// Wrap with logging middleware
@@ -722,7 +722,7 @@ func TestPanicRecoveryMiddleware(t *testing.T) {
 		// Create a normal handler
 		normalHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("success"))
+			_, _ = w.Write([]byte("success"))
 		})
 
 		// Wrap with panic recovery middleware

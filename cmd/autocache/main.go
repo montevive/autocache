@@ -225,14 +225,6 @@ func init() {
 	if !isRunningTests() {
 		handleFlags()
 	}
-
-	// Set build info from build-time variables if available
-	if buildTime := os.Getenv("BUILD_TIME"); buildTime != "" {
-		// This would be set at build time
-	}
-	if gitCommit := os.Getenv("GIT_COMMIT"); gitCommit != "" {
-		// This would be set at build time
-	}
 }
 
 // isRunningTests checks if we're running in test mode
