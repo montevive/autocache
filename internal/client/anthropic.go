@@ -62,8 +62,21 @@ func (pc *ProxyClient) ForwardRequest(req *types.AnthropicRequest, headers map[s
 		// Skip headers that might interfere
 		if !shouldSkipHeader(key) {
 			httpReq.Header.Set(key, value)
+			if strings.ToLower(key) == "x-api-key" {
+				pc.logger.WithFields(logrus.Fields{
+					"header_key":      key,
+					"api_key_preview": maskAPIKey(value),
+				}).Debug("Setting x-api-key header for Anthropic request")
+			}
 		}
 	}
+
+	// Debug: Check if x-api-key was actually set
+	actualAPIKey := httpReq.Header.Get("x-api-key")
+	pc.logger.WithFields(logrus.Fields{
+		"x-api-key_present": actualAPIKey != "",
+		"api_key_preview":   maskAPIKey(actualAPIKey),
+	}).Debug("Final headers before sending to Anthropic")
 
 	// Make the request
 	resp, err := pc.httpClient.Do(httpReq)
@@ -107,8 +120,21 @@ func (pc *ProxyClient) ForwardStreamingRequest(req *types.AnthropicRequest, head
 	for key, value := range headers {
 		if !shouldSkipHeader(key) {
 			httpReq.Header.Set(key, value)
+			if strings.ToLower(key) == "x-api-key" {
+				pc.logger.WithFields(logrus.Fields{
+					"header_key":      key,
+					"api_key_preview": maskAPIKey(value),
+				}).Debug("Setting x-api-key header for Anthropic streaming request")
+			}
 		}
 	}
+
+	// Debug: Check if x-api-key was actually set
+	actualAPIKey := httpReq.Header.Get("x-api-key")
+	pc.logger.WithFields(logrus.Fields{
+		"x-api-key_present": actualAPIKey != "",
+		"api_key_preview":   maskAPIKey(actualAPIKey),
+	}).Debug("Final headers before sending streaming request to Anthropic")
 
 	// Make the request
 	resp, err := pc.httpClient.Do(httpReq)
@@ -231,10 +257,20 @@ func (pc *ProxyClient) ValidateRequest(req *types.AnthropicRequest) error {
 }
 
 // ExtractAPIKey extracts the API key from request headers
-func ExtractAPIKey(headers http.Header) string {
+func ExtractAPIKey(headers http.Header, logger *logrus.Logger) string {
+	// Log all headers for debugging
+	headerList := make([]string, 0)
+	for key := range headers {
+		headerList = append(headerList, key)
+	}
+	logger.WithFields(logrus.Fields{
+		"headers_present": headerList,
+	}).Debug("Extracting API key from headers")
+
 	// Check Authorization header
 	auth := headers.Get("Authorization")
 	if auth != "" {
+		logger.Debug("Found API key in Authorization header")
 		// Remove "Bearer " prefix if present
 		if strings.HasPrefix(auth, "Bearer ") {
 			return strings.TrimPrefix(auth, "Bearer ")
@@ -245,26 +281,57 @@ func ExtractAPIKey(headers http.Header) string {
 	// Check x-api-key header
 	apiKey := headers.Get("x-api-key")
 	if apiKey != "" {
+		logger.WithFields(logrus.Fields{
+			"api_key_preview": maskAPIKey(apiKey),
+		}).Debug("Found API key in x-api-key header")
 		return apiKey
 	}
 
 	// Check anthropic-api-key header
 	anthropicKey := headers.Get("anthropic-api-key")
 	if anthropicKey != "" {
+		logger.Debug("Found API key in anthropic-api-key header")
 		return anthropicKey
 	}
 
+	logger.Debug("No API key found in request headers")
 	return ""
 }
 
 // SetupAuthHeader sets up the authorization header for the Anthropic API
-func SetupAuthHeader(headers map[string]string, apiKey string) {
+func SetupAuthHeader(headers map[string]string, apiKey string, logger *logrus.Logger) {
 	if apiKey != "" {
+		logger.WithFields(logrus.Fields{
+			"api_key_preview": maskAPIKey(apiKey),
+		}).Debug("Setting up x-api-key header for Anthropic API")
+
+		// Remove all possible variations of API key headers (case-insensitive)
+		headersToRemove := []string{}
+		for key := range headers {
+			lowerKey := strings.ToLower(key)
+			if lowerKey == "authorization" || lowerKey == "x-api-key" || lowerKey == "anthropic-api-key" {
+				headersToRemove = append(headersToRemove, key)
+			}
+		}
+		for _, key := range headersToRemove {
+			delete(headers, key)
+			logger.WithField("removed_header", key).Debug("Removed existing auth header")
+		}
+
 		// Anthropic expects the API key in the x-api-key header
 		headers["x-api-key"] = apiKey
-		// Remove any Authorization header to avoid conflicts
-		delete(headers, "Authorization")
 	}
+}
+
+// maskAPIKey masks the API key for logging (shows first 10 chars)
+func maskAPIKey(apiKey string) string {
+	if apiKey == "" {
+		return "<empty>"
+	}
+	if len(apiKey) <= 10 {
+		return "***"
+	}
+	return apiKey[:10] + "***"
 }
 
 // shouldSkipHeader determines if a header should be skipped when forwarding
@@ -285,7 +352,7 @@ func shouldSkipHeader(header string) bool {
 }
 
 // CreateHeadersMap creates a map of headers to forward
-func CreateHeadersMap(reqHeaders http.Header, apiKey string) map[string]string {
+func CreateHeadersMap(reqHeaders http.Header, apiKey string, logger *logrus.Logger) map[string]string {
 	headers := make(map[string]string)
 
 	// Copy relevant headers
@@ -295,10 +362,21 @@ func CreateHeadersMap(reqHeaders http.Header, apiKey string) map[string]string {
 		}
 	}
 
+	logger.WithFields(logrus.Fields{
+		"headers_before_auth": len(headers),
+		"has_api_key":         apiKey != "",
+		"api_key_preview":     maskAPIKey(apiKey),
+	}).Debug("Headers before authentication setup")
+
 	// Setup authentication
 	if apiKey != "" {
-		SetupAuthHeader(headers, apiKey)
+		SetupAuthHeader(headers, apiKey, logger)
 	}
+
+	logger.WithFields(logrus.Fields{
+		"headers_after_auth": len(headers),
+		"x-api-key_set":      headers["x-api-key"] != "",
+	}).Debug("Headers after authentication setup")
 
 	return headers
 }
