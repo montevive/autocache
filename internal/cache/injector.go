@@ -156,17 +156,27 @@ func (ci *CacheInjector) InjectCacheControl(req *types.AnthropicRequest) (*types
 func (ci *CacheInjector) CollectCacheCandidates(req *types.AnthropicRequest, minTokens int, strategyConfig types.StrategyConfig) []CacheCandidate {
 	var candidates []CacheCandidate
 
-	// Check system content
-	if req.System != "" {
+	// Handle system content (both string and blocks format)
+	// If system is a string, convert it to blocks format to support cache control
+	if req.System != "" && len(req.SystemBlocks) == 0 {
 		tokens := ci.tokenizer.CountSystemTokens(req.System)
 		if tokens >= minTokens {
-			candidate := ci.CreateCandidate("system", tokens, "system", strategyConfig.SystemTTL, req.Model, &req.System)
+			// Convert system string to SystemBlocks to support cache control
+			// Cache control can only be applied to the blocks format, not the string format
+			req.SystemBlocks = []types.ContentBlock{
+				{
+					Type: "text",
+					Text: req.System,
+				},
+			}
+			// Clear the string field to avoid duplication (MarshalJSON will use SystemBlocks)
+			req.System = ""
+
+			candidate := ci.CreateCandidate("system", tokens, "system", strategyConfig.SystemTTL, req.Model, &req.SystemBlocks)
 			candidates = append(candidates, candidate)
 		}
-	}
-
-	// Check system blocks
-	if len(req.SystemBlocks) > 0 {
+	} else if len(req.SystemBlocks) > 0 {
+		// System blocks already present (not converted from string)
 		tokens := ci.tokenizer.CountSystemBlocksTokens(req.SystemBlocks)
 		if tokens >= minTokens {
 			candidate := ci.CreateCandidate("system_blocks", tokens, "system", strategyConfig.SystemTTL, req.Model, &req.SystemBlocks)
@@ -327,11 +337,6 @@ func (ci *CacheInjector) ApplyCacheControl(candidates []CacheCandidate) []types.
 // applyCacheControlToContent applies cache control to the actual content structures
 func (ci *CacheInjector) applyCacheControlToContent(content interface{}, cacheControl *types.CacheControl) bool {
 	switch v := content.(type) {
-	case *string:
-		// For system strings, we can't directly add cache control
-		// This would need to be handled at the request level
-		return true
-
 	case *[]types.ContentBlock:
 		// Add cache control to the last block
 		if len(*v) > 0 {

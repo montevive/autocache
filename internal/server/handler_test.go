@@ -59,10 +59,18 @@ func createMockAnthropicServer() *httptest.Server {
 		hasCacheControl := false
 		cacheTokens := 0
 
-		// Check system message for cache control
+		// Check system message for cache control (string format)
 		if req.System != "" {
 			cacheTokens += 500 // Mock cached system tokens
 			hasCacheControl = true
+		}
+
+		// Check system blocks for cache control (array format)
+		for _, block := range req.SystemBlocks {
+			if block.CacheControl != nil {
+				cacheTokens += 500 // Mock cached system tokens
+				hasCacheControl = true
+			}
 		}
 
 		// Check tools for cache control
