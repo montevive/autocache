@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -101,6 +102,86 @@ type AnthropicRequest struct {
 	TopK          *int             `json:"top_k,omitempty"`
 	Stream        *bool            `json:"stream,omitempty"`
 	StopSequences []string         `json:"stop_sequences,omitempty"`
+}
+
+// MarshalJSON implements custom marshaling for AnthropicRequest
+// When SystemBlocks is populated, it serializes as the "system" field instead of the System string
+func (r *AnthropicRequest) MarshalJSON() ([]byte, error) {
+	// Create an alias type to avoid infinite recursion
+	type Alias AnthropicRequest
+
+	// If SystemBlocks is populated, we need to serialize it as "system" array
+	if len(r.SystemBlocks) > 0 {
+		// Create an anonymous struct with all fields explicitly set
+		return json.Marshal(&struct {
+			Model         string           `json:"model"`
+			MaxTokens     int              `json:"max_tokens"`
+			Messages      []Message        `json:"messages"`
+			System        interface{}      `json:"system,omitempty"`        // Use interface{} to allow array
+			Tools         []ToolDefinition `json:"tools,omitempty"`
+			Temperature   *float64         `json:"temperature,omitempty"`
+			TopP          *float64         `json:"top_p,omitempty"`
+			TopK          *int             `json:"top_k,omitempty"`
+			Stream        *bool            `json:"stream,omitempty"`
+			StopSequences []string         `json:"stop_sequences,omitempty"`
+		}{
+			Model:         r.Model,
+			MaxTokens:     r.MaxTokens,
+			Messages:      r.Messages,
+			System:        r.SystemBlocks, // Serialize SystemBlocks as "system"
+			Tools:         r.Tools,
+			Temperature:   r.Temperature,
+			TopP:          r.TopP,
+			TopK:          r.TopK,
+			Stream:        r.Stream,
+			StopSequences: r.StopSequences,
+		})
+	}
+
+	// Otherwise, use normal marshaling (System string field)
+	return json.Marshal((*Alias)(r))
+}
+
+// UnmarshalJSON implements custom unmarshaling for AnthropicRequest
+// Handles both string and array formats for the "system" field
+func (r *AnthropicRequest) UnmarshalJSON(data []byte) error {
+	// Create an alias type to avoid infinite recursion
+	type Alias AnthropicRequest
+
+	// First, try to unmarshal with a temporary struct that has system as RawMessage
+	aux := &struct {
+		*Alias
+		System json.RawMessage `json:"system,omitempty"`
+	}{
+		Alias: (*Alias)(r),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	// If there's a system field, check if it's a string or array
+	if len(aux.System) > 0 {
+		// Try to unmarshal as string first
+		var systemStr string
+		if err := json.Unmarshal(aux.System, &systemStr); err == nil {
+			r.System = systemStr
+			return nil
+		}
+
+		// If that fails, try to unmarshal as array of content blocks
+		var systemBlocks []ContentBlock
+		if err := json.Unmarshal(aux.System, &systemBlocks); err == nil {
+			r.SystemBlocks = systemBlocks
+			r.System = "" // Clear the string field
+			return nil
+		}
+
+		// If both fail, return error
+		return fmt.Errorf("system field must be either a string or an array of content blocks")
+	}
+
+	return nil
 }
 
 // AnthropicResponse represents the response from Anthropic API

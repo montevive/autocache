@@ -438,7 +438,7 @@ func TestApplyCacheControl(t *testing.T) {
 	injector := NewCacheInjector(types.StrategyModerate, "https://api.anthropic.com", "test-key", logger)
 
 	// Create test content blocks
-	systemContent := "System instructions"
+	systemBlocks := []types.ContentBlock{{Type: "text", Text: "System instructions"}}
 	contentBlock := types.ContentBlock{Type: "text", Text: "User message"}
 	toolDef := types.ToolDefinition{Name: "test_tool", Description: "Test tool"}
 
@@ -450,7 +450,7 @@ func TestApplyCacheControl(t *testing.T) {
 			TTL:         "1h",
 			WriteCost:   0.01,
 			ReadSavings: 0.005,
-			Content:     &systemContent,
+			Content:     &systemBlocks,
 		},
 		{
 			Position:    "message_0_block_0",
@@ -493,7 +493,23 @@ func TestApplyCacheControl(t *testing.T) {
 		}
 	}
 
-	// Check that cache control was actually applied to the content block
+	// Check that cache control was actually applied to the content blocks
+
+	// System blocks
+	if len(systemBlocks) == 0 || systemBlocks[0].CacheControl == nil {
+		t.Error("Cache control was not applied to system block")
+	} else {
+		if systemBlocks[0].CacheControl.Type != "ephemeral" {
+			t.Errorf("Expected cache control type 'ephemeral' for system, got %s",
+				systemBlocks[0].CacheControl.Type)
+		}
+		if systemBlocks[0].CacheControl.TTL != "1h" {
+			t.Errorf("Expected cache control TTL '1h' for system, got %s",
+				systemBlocks[0].CacheControl.TTL)
+		}
+	}
+
+	// Content block
 	if contentBlock.CacheControl == nil {
 		t.Error("Cache control was not applied to content block")
 	} else {
@@ -648,5 +664,110 @@ func TestStrategyBehavior(t *testing.T) {
 	if results[1] > results[2] {
 		t.Errorf("Moderate strategy used more breakpoints (%d) than aggressive (%d)",
 			results[1], results[2])
+	}
+}
+
+// TestSystemStringConversionToBlocks tests that system strings are converted to SystemBlocks
+// This is the fix for issue #4: system strings weren't being cached because cache_control
+// can only be applied to the blocks format, not the string format
+func TestSystemStringConversionToBlocks(t *testing.T) {
+	logger := logrus.New()
+	logger.SetLevel(logrus.ErrorLevel)
+	injector := NewCacheInjector(types.StrategyModerate, "https://api.anthropic.com", "test-key", logger)
+
+	// Create a request with a large system string (should exceed 1024 tokens)
+	systemPrompt := strings.Repeat("You are a helpful assistant with detailed instructions. ", 100)
+	request := &types.AnthropicRequest{
+		Model:     "claude-3-5-sonnet-20241022",
+		MaxTokens: 100,
+		System:    systemPrompt, // Using string format
+		Messages: []types.Message{
+			{Role: "user", Content: []types.ContentBlock{{Type: "text", Text: "Hello"}}},
+		},
+	}
+
+	// Inject cache control
+	metadata, err := injector.InjectCacheControl(request)
+	if err != nil {
+		t.Fatalf("Failed to inject cache control: %v", err)
+	}
+
+	// Verify cache was injected
+	if !metadata.CacheInjected {
+		t.Error("Expected cache to be injected for large system string")
+	}
+
+	// Verify the system string was converted to SystemBlocks
+	if len(request.SystemBlocks) == 0 {
+		t.Fatal("Expected System string to be converted to SystemBlocks")
+	}
+
+	if request.System != "" {
+		t.Error("Expected System string to be cleared after conversion")
+	}
+
+	// Verify SystemBlocks has the original content
+	if len(request.SystemBlocks) != 1 {
+		t.Fatalf("Expected 1 SystemBlock, got %d", len(request.SystemBlocks))
+	}
+
+	if request.SystemBlocks[0].Type != "text" {
+		t.Errorf("Expected SystemBlock type 'text', got %s", request.SystemBlocks[0].Type)
+	}
+
+	if request.SystemBlocks[0].Text != systemPrompt {
+		t.Error("SystemBlock text doesn't match original System string")
+	}
+
+	// Verify cache_control was applied to the SystemBlock
+	if request.SystemBlocks[0].CacheControl == nil {
+		t.Fatal("Expected cache_control to be applied to SystemBlock")
+	}
+
+	if request.SystemBlocks[0].CacheControl.Type != "ephemeral" {
+		t.Errorf("Expected cache_control type 'ephemeral', got %s",
+			request.SystemBlocks[0].CacheControl.Type)
+	}
+
+	if request.SystemBlocks[0].CacheControl.TTL != "1h" {
+		t.Errorf("Expected cache_control TTL '1h', got %s",
+			request.SystemBlocks[0].CacheControl.TTL)
+	}
+}
+
+// TestSystemStringBelowThreshold tests that small system strings are NOT cached
+func TestSystemStringBelowThreshold(t *testing.T) {
+	logger := logrus.New()
+	logger.SetLevel(logrus.ErrorLevel)
+	injector := NewCacheInjector(types.StrategyModerate, "https://api.anthropic.com", "test-key", logger)
+
+	// Create a request with a small system string (below 1024 tokens)
+	request := &types.AnthropicRequest{
+		Model:     "claude-3-5-sonnet-20241022",
+		MaxTokens: 100,
+		System:    "You are helpful.", // Too small to cache
+		Messages: []types.Message{
+			{Role: "user", Content: []types.ContentBlock{{Type: "text", Text: "Hello"}}},
+		},
+	}
+
+	// Inject cache control
+	metadata, err := injector.InjectCacheControl(request)
+	if err != nil {
+		t.Fatalf("Failed to inject cache control: %v", err)
+	}
+
+	// Verify cache was NOT injected
+	if metadata.CacheInjected {
+		t.Error("Expected cache NOT to be injected for small system string")
+	}
+
+	// Verify the system string was NOT converted (still in original format)
+	if request.System != "You are helpful." {
+		t.Error("Expected System string to remain unchanged when below threshold")
+	}
+
+	if len(request.SystemBlocks) != 0 {
+		t.Error("Expected SystemBlocks to be empty when below threshold")
 	}
 }
