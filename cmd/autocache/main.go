@@ -16,8 +16,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	// Version information
+var (
+	// Version information (set via ldflags during build)
 	Version   = "1.0.0"
 	BuildTime = "development"
 	GitCommit = "unknown"
@@ -41,7 +41,7 @@ func main() {
 	cfg.PrintConfig(logger)
 
 	// Create handler
-	handler := server.NewAutocacheHandler(cfg, logger)
+	handler := server.NewAutocacheHandler(cfg, logger, Version)
 
 	// Setup routes
 	mux := handler.SetupRoutes()

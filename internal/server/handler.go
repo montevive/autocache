@@ -28,6 +28,7 @@ type AutocacheHandler struct {
 	proxyClient    *client.ProxyClient
 	config         *config.Config
 	logger         *logrus.Logger
+	version        string
 	requestHistory []types.CacheMetadata
 	historyMutex   sync.RWMutex
 	panicCount     atomic.Uint64
@@ -35,7 +36,7 @@ type AutocacheHandler struct {
 }
 
 // NewAutocacheHandler creates a new handler
-func NewAutocacheHandler(cfg *config.Config, logger *logrus.Logger) *AutocacheHandler {
+func NewAutocacheHandler(cfg *config.Config, logger *logrus.Logger, version string) *AutocacheHandler {
 	strategy := types.CacheStrategy(cfg.CacheStrategy)
 
 	return &AutocacheHandler{
@@ -43,6 +44,7 @@ func NewAutocacheHandler(cfg *config.Config, logger *logrus.Logger) *AutocacheHa
 		proxyClient:    client.NewProxyClient(cfg.AnthropicURL, logger),
 		config:         cfg,
 		logger:         logger,
+		version:        version,
 		requestHistory: make([]types.CacheMetadata, 0, cfg.SavingsHistorySize),
 	}
 }
@@ -349,7 +351,7 @@ func (ah *AutocacheHandler) HandleHealth(w http.ResponseWriter, r *http.Request)
 
 	health := map[string]interface{}{
 		"status":   "healthy",
-		"version":  "1.0.0",
+		"version":  ah.version,
 		"strategy": ah.config.CacheStrategy,
 	}
 

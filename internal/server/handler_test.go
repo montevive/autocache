@@ -110,7 +110,7 @@ func TestNewAutocacheHandler(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 	if handler == nil {
 		t.Fatal("Expected handler to be created")
 	}
@@ -139,7 +139,7 @@ func TestHandleMessages(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	tests := []struct {
 		name           string
@@ -287,7 +287,7 @@ func TestHandleMessagesInvalidRequests(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	tests := []struct {
 		name         string
@@ -354,7 +354,7 @@ func TestHandleMessagesBypass(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	request := &types.AnthropicRequest{
 		Model:     "claude-3-5-sonnet-20241022",
@@ -427,7 +427,7 @@ func TestHandleHealth(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	req := httptest.NewRequest("GET", "/health", nil)
 	rr := httptest.NewRecorder()
@@ -461,7 +461,7 @@ func TestHandleMetrics(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	req := httptest.NewRequest("GET", "/metrics", nil)
 	rr := httptest.NewRecorder()
@@ -507,7 +507,7 @@ func TestSetupRoutes(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 	mux := handler.SetupRoutes()
 
 	if mux == nil {
@@ -548,7 +548,7 @@ func TestLogMiddleware(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel) // Suppress logs during test
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	// Create a simple test handler
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -643,7 +643,7 @@ func TestWriteError(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	rr := httptest.NewRecorder()
 	handler.writeError(rr, http.StatusBadRequest, "Test error message")
@@ -681,7 +681,7 @@ func TestPanicRecoveryMiddleware(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel) // Suppress error logs during test
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	t.Run("Handler that panics", func(t *testing.T) {
 		// Create a handler that deliberately panics
@@ -763,7 +763,7 @@ func TestPanicRecoveryMetrics(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	// Check initial panic count
 	initialPanics := handler.panicCount.Load()
@@ -803,7 +803,7 @@ func TestPanicRecoveryInMetricsEndpoint(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	// Trigger a panic first
 	panicHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -886,7 +886,7 @@ func TestPanicRecoveryLogging(t *testing.T) {
 	logger.SetOutput(&logOutput)
 	logger.SetLevel(logrus.ErrorLevel)
 
-	handler := NewAutocacheHandler(cfg, logger)
+	handler := NewAutocacheHandler(cfg, logger, "1.0.0-test")
 
 	// Create a handler that panics
 	panicHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
