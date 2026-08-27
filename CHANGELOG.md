@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- Header-less brotli bodies on non-streaming responses when the client advertises `br`
+  - Clients such as n8n (Node/undici sends `Accept-Encoding: gzip, deflate, br`) had that header forwarded upstream verbatim; Anthropic answered in brotli, which the proxy cannot inflate, and the raw brotli bytes were returned with HTTP 200 and the `Content-Encoding` header stripped
+  - The proxy now pins `Accept-Encoding: gzip` on the upstream request for buffered (non-streaming and `/v1/models`) requests — gzip is the only encoding it decodes; streaming requests are unchanged (passed through with their response headers intact)
+  - `ReadAndParseResponse` refuses any other `Content-Encoding` with an explicit error instead of parsing garbage
+  - The raw error-forwarding path drops `Content-Encoding` only when the body was actually inflated (gzip), so an undecodable body is never shipped unlabelled
+  - Regression tests for all three layers
+
 ## [1.1.0] - 2026-01-26
 
 ### Added

@@ -71,6 +71,14 @@ func (pc *ProxyClient) ForwardRequest(req *types.AnthropicRequest, headers map[s
 		}
 	}
 
+	// Pin the upstream content encoding. This proxy buffers and parses the
+	// non-streaming body, and the only encoding it can inflate is gzip. If the
+	// client's own Accept-Encoding (e.g. "gzip, deflate, br" from Node/undici)
+	// were forwarded, Anthropic would answer in brotli, the parse below would
+	// fail, and the raw brotli bytes would be handed back to the client with
+	// the Content-Encoding header stripped — a header-less binary body.
+	pinUpstreamAcceptEncoding(httpReq)
+
 	// Debug: Check if x-api-key was actually set
 	actualAPIKey := httpReq.Header.Get("x-api-key")
 	pc.logger.WithFields(logrus.Fields{
@@ -187,9 +195,12 @@ func (pc *ProxyClient) ForwardStreamingRequest(req *types.AnthropicRequest, head
 func (pc *ProxyClient) ReadAndParseResponse(resp *http.Response) (*types.AnthropicResponse, []byte, error) {
 	defer resp.Body.Close()
 
-	// Handle gzip compression if present
+	// Handle content encoding. gzip is the only encoding this proxy can
+	// inflate (and the only one it asks for — see pinUpstreamAcceptEncoding).
+	// Anything else is refused loudly rather than parsed as garbage.
 	reader := resp.Body
-	if resp.Header.Get("Content-Encoding") == "gzip" {
+	switch enc := strings.ToLower(strings.TrimSpace(resp.Header.Get("Content-Encoding"))); enc {
+	case "gzip":
 		gzReader, err := gzip.NewReader(resp.Body)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to create gzip reader: %w", err)
@@ -198,6 +209,16 @@ func (pc *ProxyClient) ReadAndParseResponse(resp *http.Response) (*types.Anthrop
 		reader = gzReader
 
 		pc.logger.Debug("Response is gzip-compressed, decompressing")
+	case "", "identity":
+		// plain body
+	default:
+		body, _ := io.ReadAll(resp.Body)
+		pc.logger.WithFields(logrus.Fields{
+			"content_encoding": enc,
+			"status_code":      resp.StatusCode,
+			"body_bytes":       len(body),
+		}).Error("Anthropic response uses a Content-Encoding this proxy cannot decode")
+		return nil, body, fmt.Errorf("unsupported Content-Encoding %q from upstream (autocache pins Accept-Encoding: %s)", enc, upstreamAcceptEncoding)
 	}
 
 	// Read the (possibly decompressed) response body
@@ -354,6 +375,20 @@ func maskAPIKey(apiKey string) string {
 	return apiKey[:10] + "***"
 }
 
+// upstreamAcceptEncoding is the only Accept-Encoding the proxy sends upstream on
+// buffered (non-streaming) requests: it is the only encoding ReadAndParseResponse
+// can inflate. Streaming requests are passed through byte-for-byte with their
+// response headers intact, so they keep the client's own Accept-Encoding.
+const upstreamAcceptEncoding = "gzip"
+
+// pinUpstreamAcceptEncoding overrides whatever Accept-Encoding the client sent
+// so that the upstream reply is something this proxy can actually decode.
+// Setting the header explicitly also disables Go's transparent gzip handling,
+// which is fine: ReadAndParseResponse inflates gzip itself.
+func pinUpstreamAcceptEncoding(req *http.Request) {
+	req.Header.Set("Accept-Encoding", upstreamAcceptEncoding)
+}
+
 // shouldSkipHeader determines if a header should be skipped when forwarding
 func shouldSkipHeader(header string) bool {
 	skipHeaders := map[string]bool{
@@ -427,6 +462,9 @@ func (pc *ProxyClient) GetModels(headers map[string]string) (*http.Response, err
 			httpReq.Header.Set(key, value)
 		}
 	}
+
+	// Same reasoning as ForwardRequest: the body is buffered and parsed here.
+	pinUpstreamAcceptEncoding(httpReq)
 
 	// Make the request
 	resp, err := pc.httpClient.Do(httpReq)

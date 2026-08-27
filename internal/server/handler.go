@@ -330,10 +330,14 @@ func (ah *AutocacheHandler) writeError(w http.ResponseWriter, statusCode int, me
 
 // writeRawResponse writes a raw response with headers
 func (ah *AutocacheHandler) writeRawResponse(w http.ResponseWriter, statusCode int, body []byte, headers http.Header) {
-	// Copy headers (skip Content-Encoding as we may have decompressed)
+	// Copy headers. gzip is the only encoding the proxy ever inflates, so it is
+	// the only Content-Encoding that must be dropped (the body is decompressed).
+	// Any other encoding means the body is still exactly what upstream sent —
+	// keep the header so the client can decode it, instead of shipping
+	// header-less compressed bytes.
 	for key, values := range headers {
-		if key == "Content-Encoding" {
-			continue // Skip - body may have been decompressed by proxy
+		if strings.EqualFold(key, "Content-Encoding") && strings.EqualFold(strings.TrimSpace(headers.Get(key)), "gzip") {
+			continue // Skip - body was decompressed by proxy
 		}
 		for _, value := range values {
 			w.Header().Add(key, value)
